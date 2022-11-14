@@ -54,7 +54,8 @@ def play(SCREEN):
                     BG = pygame.image.load("assets/Background.png")
                     main_menu(SCREEN, BG)
                 if PLAY_BACK2.checkForInput(PLAY_MOUSE_POS):
-                    song(SCREEN)
+                    BG = pygame.image.load("assets/Background.png")
+                    song(SCREEN, BG)
 
         pygame.display.update()
 
