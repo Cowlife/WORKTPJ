@@ -1,10 +1,11 @@
 import pygame
+import pygame_widgets
 from pygame import mixer
-
 from keys import keys
+from loading_bar import progressing
 
 
-def load(map, screen, bg, clock):
+def load(map):
     rects = []
     mixer.music.load("musics/" + map + ".mp3")
     mixer.music.play()
@@ -55,7 +56,7 @@ def song(screen, bg):
     clock = pygame.time.Clock()
     # Creating the sprites and groups
     # now we will create a map by making a txt file
-    map_rect = load("rythm test", screen, bg, clock)
+    map_rect = load("rythm test")
 
     font = pygame.font.Font("assets/font.ttf", 100)
     counter = 0
@@ -64,20 +65,26 @@ def song(screen, bg):
     timer_event = pygame.USEREVENT + 1
     pygame.time.set_timer(timer_event, 1000)
 
+    progressing(screen)
+
     while True:
         clock.tick(60)
+
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
             if event.type == timer_event:
                 counter += 1
+
                 text = font.render(str(counter), True, (222, 109, 11))
                 if counter == 10:
                     print("Function")
-                    # pygame.time.set_timer(timer_event, 0)
 
         screen.fill((0, 0, 0))
+
+        pygame_widgets.update(event)
         text_rect = text.get_rect()
         screen.blit(text, text_rect)
 
