@@ -55,7 +55,8 @@ def play(SCREEN):
                     main_menu(SCREEN, BG)
                 if PLAY_BACK2.checkForInput(PLAY_MOUSE_POS):
                     BG = pygame.image.load("assets/Background.png")
-                    song(SCREEN, BG)
+                    fade_in(1280, 720)
+                    song(SCREEN)
 
         pygame.display.update()
 
