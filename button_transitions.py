@@ -2,30 +2,32 @@ import sys
 
 import pygame
 
-from global_functions import fade_in, screen
-from scenes.options import options
-from scenes.play import play
+import global_functions
 
 
 class ButtonTransition:
 
     def execute(self, buttons, menu_mouse_pos, i):
         if buttons[i].checkForInput(menu_mouse_pos):
-            fade_in(1280, 720, screen)
+            global_functions.fade_in(1280, 720, global_functions.screen)
 
 
 class Play(ButtonTransition):
     def execute(self, buttons, menu_mouse_pos, i):
-        play(screen)
+        if buttons[i].checkForInput(menu_mouse_pos):
+            # play()
+            pass
 
 
 class Options(ButtonTransition):
     def execute(self, buttons, menu_mouse_pos, i):
-        options(screen)
+        if buttons[i].checkForInput(menu_mouse_pos):
+            # options()
+            pass
 
 
 class Quit(ButtonTransition):
     def execute(self, buttons, menu_mouse_pos, i):
-        pygame.quit()
-        sys.exit()
-
+        if buttons[i].checkForInput(menu_mouse_pos):
+            pygame.quit()
+            sys.exit()

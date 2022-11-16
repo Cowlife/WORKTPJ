@@ -2,9 +2,10 @@ import pygame
 import pygame_widgets
 from pygame import mixer
 
+import global_functions
 import scenes.menu
 from keys import keys
-from global_functions import progressing, fade_in
+
 
 
 def load(map):
@@ -64,7 +65,7 @@ def song(screen, bg, counter):
     print(timer_event)
     pygame.time.set_timer(timer_event, 1000)
 
-    progressing(screen)
+    global_functions.progressing(screen)
 
     SCREEN_HEIGHT = 720
 
@@ -139,7 +140,7 @@ def song(screen, bg, counter):
 
         if counter == 10:
             pygame.display.flip()
-            fade_in(1280, 720, screen)
+            global_functions.fade_in(1280, 720, screen)
             bg_rect = bg.get_rect()
             screen.blit(bg, bg_rect)
 
@@ -164,7 +165,7 @@ def song(screen, bg, counter):
                         pygame.quit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            fade_in(1280, 720, screen)
+                            global_functions.fade_in(1280, 720, screen)
                             BG = pygame.image.load("assets/Background.png")
                             pygame.display.flip()
                             scenes.menu.main_menu()
