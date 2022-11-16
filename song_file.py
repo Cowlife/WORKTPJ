@@ -92,7 +92,7 @@ def play(SCREEN):
                 if PLAY_BACK2.checkForInput(PLAY_MOUSE_POS):
                     BG = pygame.image.load("assets/Background.png")
                     fade_in(1280, 720, SCREEN)
-                    song(SCREEN, BG)
+                    song(SCREEN, BG, 0)
 
         pygame.display.update()
 
@@ -166,7 +166,7 @@ def load(map):
     return rects
 
 
-def song(screen, bg):
+def song(screen, bg, counter):
     mixer.init()
 
     clock = pygame.time.Clock()
@@ -175,10 +175,10 @@ def song(screen, bg):
     map_rect = load("rythm test")
 
     font = pygame.font.Font("assets/font.ttf", 100)
-    counter = 0
     text = font.render(str(counter), True, (222, 109, 11))
 
     timer_event = pygame.USEREVENT + 1
+    print(timer_event)
     pygame.time.set_timer(timer_event, 1000)
 
     progressing(screen)
@@ -255,6 +255,8 @@ def song(screen, bg):
                     break
 
         if counter == 10:
+            pygame_widgets.update(event)
+            pygame.display.update()
             fade_in(1280, 720, screen)
             bg_rect = bg.get_rect()
             screen.blit(bg, bg_rect)
@@ -263,28 +265,19 @@ def song(screen, bg):
             text_rect = text_surface.get_rect()
             text_rect.midtop = (640, SCREEN_HEIGHT / 4)
             screen.blit(text_surface, text_rect)
-            exit_button = Button(image=pygame.image.load("assets/Options Rect.png"), pos=(440, 550),
-                                 text_input="BUTTON", font=get_font(75), base_color="#d7fcd4",
-                                 hovering_color="Red")
-            pos_tracker = pygame.mouse.get_pos()
-            exit_button.changeColor(pos_tracker)
-
-            for button in [exit_button]:
-                button.update(screen)
 
             pygame.display.flip()
 
             waiting = True
             while waiting:
-                clock.tick(60)
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
-                    if event.type == pygame.KEYUP:
-                        waiting = False
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        if exit_button.checkForInput(pos_tracker):
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
                             fade_in(1280, 720, screen)
-                            play(screen)
+                            BG = pygame.image.load("assets/Background.png")
+                            pygame.display.flip()
+                            main_menu(screen, BG)
 
-        pygame.display.update()  # essential for refreshing screen
+        pygame.display.update()
