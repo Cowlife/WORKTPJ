@@ -4,6 +4,10 @@ import pygame
 from pygame_widgets.progressbar import ProgressBar
 
 
+screen = pygame.display.set_mode((1280, 720))
+menu_bg = pygame.image.load("assets/Background.png")
+
+
 def progressing(screen):  # 0.1
     startTime = time.time()
     progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / 10, curved=False)
