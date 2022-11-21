@@ -140,7 +140,7 @@ def song(screen, bg, counter):
 
         if counter == 10:
             pygame.display.flip()
-            global_functions.fade_in(1280, 720, screen)
+            global_functions.fade_in()
             bg_rect = bg.get_rect()
             screen.blit(bg, bg_rect)
 
@@ -165,7 +165,7 @@ def song(screen, bg, counter):
                         pygame.quit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
-                            global_functions.fade_in(1280, 720, screen)
+                            global_functions.fade_in()
                             BG = pygame.image.load("assets/Background.png")
                             pygame.display.flip()
                             scenes.menu.main_menu()

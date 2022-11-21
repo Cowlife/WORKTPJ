@@ -3,13 +3,14 @@ import sys
 import pygame
 
 import scenes.menu
-from scenes.button import Button
+from button_transitions import Play
 from global_functions import get_font, fade_in, screen
+from scenes.button import Button
 from song_file import song
 
 
 class HMenu:
-    def __init__(self, pos_x, initial_pos_y, bg):
+    def __init__(self, pos_x, initial_pos_y, bg, mapping_globals):
         self.bg = bg
         self.pos_x = pos_x
         self.initial_pos_y = initial_pos_y
@@ -18,6 +19,7 @@ class HMenu:
         self.color_hovering = "Red"
         self.menu_mouse_pos = pygame.mouse.get_pos()
         self.buttons = []
+        self.mapping_globals = mapping_globals
 
     def drawing_title(self, title, font_size, rect_cd):
         text_menu = get_font(font_size).render(title, True, "#b68f40")
@@ -42,6 +44,19 @@ class HMenu:
             button.changeColor(self.menu_mouse_pos)
             button.update(screen)
 
+    def handle_input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for i in self.buttons:
+                    if self.buttons[self.buttons.index(i)].checkForInput(self.menu_mouse_pos):
+                        result = self.mapping_globals[self.buttons.index(i)]
+                        print(result)
+                        result.execute(self, self.buttons, self.menu_mouse_pos)
+                        print(result.execute(self, self.buttons, self.menu_mouse_pos))
+
     def button_actions(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -49,10 +64,11 @@ class HMenu:
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.buttons[0].checkForInput(self.menu_mouse_pos):
-                    fade_in(1280, 720, screen)
+                    bttr = Play()
+                    bttr.get_fade_in()
                     scenes.menu.play()
                 if self.buttons[1].checkForInput(self.menu_mouse_pos):
-                    fade_in(1280, 720, screen)
+                    fade_in()
                     scenes.menu.options()
                 if self.buttons[2].checkForInput(self.menu_mouse_pos):
                     pygame.quit()
@@ -77,5 +93,5 @@ class HMenu:
                     scenes.menu.main_menu()
                 if self.buttons[1].checkForInput(self.menu_mouse_pos):
                     BG = pygame.image.load("assets/Background.png")
-                    fade_in(1280, 720, screen)
+                    fade_in()
                     song(screen, BG, 0)

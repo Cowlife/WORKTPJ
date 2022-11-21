@@ -5,7 +5,8 @@ from pygame_widgets.progressbar import ProgressBar
 
 from button_transitions import Play, Options, Quit
 
-screen = pygame.display.set_mode((1280, 720))
+screen_vars = (1280, 720)
+screen = pygame.display.set_mode(screen_vars)
 menu_bg = pygame.image.load("assets/Background.png")
 
 
@@ -16,8 +17,8 @@ def progressing(screen):  # 0.1
     return progressBar
 
 
-def fade_in(width, height, screen):
-    fade = pygame.Surface((width, height))
+def fade_in():
+    fade = pygame.Surface(screen_vars)
     fade.fill((0, 0, 0))
     for alpha in range(0, 300):
         fade.set_alpha(alpha)
@@ -32,7 +33,9 @@ def get_font(size):  # Returns Press-Start-2P in the desired size
 
 class Globals:
     mapping_globals = {
-        "0": Play,
-        "1": Options,
-        "2": Quit,
+        0: Play,
+        1: Options,
+        2: Quit,
     }
+
+
