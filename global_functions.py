@@ -3,7 +3,7 @@ import time
 import pygame
 from pygame_widgets.progressbar import ProgressBar
 
-from button_transitions import Play, Options, Quit
+from button_transitions import Play, Options, Quit, Menu, Song
 
 screen_vars = (1280, 720)
 screen = pygame.display.set_mode(screen_vars)
@@ -32,10 +32,16 @@ def get_font(size):  # Returns Press-Start-2P in the desired size
 
 
 class Globals:
-    mapping_globals = {
+    mapping_globals_start = {
         0: Play,
         1: Options,
         2: Quit,
     }
-
+    mapping_globals_options = {
+        0: Menu,
+    }
+    mapping_globals_play = {
+        0: Menu,
+        1: Song,
+    }
 

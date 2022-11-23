@@ -2,11 +2,8 @@ import sys
 
 import pygame
 
-import scenes.menu
-from button_transitions import Play
-from global_functions import get_font, fade_in, screen
+from global_functions import get_font, screen
 from scenes.button import Button
-from song_file import song
 
 
 class HMenu:
@@ -57,41 +54,3 @@ class HMenu:
                         result.execute(self, self.buttons, self.menu_mouse_pos)
                         print(result.execute(self, self.buttons, self.menu_mouse_pos))
 
-    def button_actions(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.buttons[0].checkForInput(self.menu_mouse_pos):
-                    bttr = Play()
-                    bttr.get_fade_in()
-                    scenes.menu.play()
-                if self.buttons[1].checkForInput(self.menu_mouse_pos):
-                    fade_in()
-                    scenes.menu.options()
-                if self.buttons[2].checkForInput(self.menu_mouse_pos):
-                    pygame.quit()
-                    sys.exit()
-
-    def button_actions2(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.buttons[0].checkForInput(self.menu_mouse_pos):
-                    scenes.menu.main_menu()
-
-    def button_actions3(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.buttons[0].checkForInput(self.menu_mouse_pos):
-                    scenes.menu.main_menu()
-                if self.buttons[1].checkForInput(self.menu_mouse_pos):
-                    BG = pygame.image.load("assets/Background.png")
-                    fade_in()
-                    song(screen, BG, 0)
