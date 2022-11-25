@@ -1,5 +1,3 @@
-import time
-
 import pygame
 import pygame_widgets
 from pygame import mixer, image
@@ -87,14 +85,15 @@ def song(screen, bg):
         bg_images.append(bg_image)
     bg_width = bg_images[0].get_width()
 
-    person = image.load('sprites_player/64969.png')
+    person = image.load('sprites_player/bowser_test.png')
     moving_sprites = pygame.sprite.Group()
-    player = Player((100, 400), False, person, (62, 5059), (744, 62), 12)
+    player = Player((100, 300), False, person, (1, 16), (1344, 70), (0, 0))
+    player_attack = Player((100, 300), False, person, (1, 9), (999, 60), (26, 89))
     moving_sprites.add(player)
 
     while True:
         clock.tick(60)
-
+        h = pygame.key.get_pressed()
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -123,7 +122,14 @@ def song(screen, bg):
         text_rect = text.get_rect()
         screen.blit(text, text_rect)
 
-        player.attack(0.25)
+        player.move(0.5)
+        player_attack.move(0.5)
+        if player_attack.attack_animation:
+            moving_sprites.remove(player_attack)
+            moving_sprites.add(player)
+            player_attack.current_sprite = 0
+            player_attack.attack_stance = not player_attack.attack_stance
+            player_attack.attack_animation = not player_attack.attack_animation
         moving_sprites.draw(screen)
 
         # now we will loop through the keys and handle the events
@@ -143,6 +149,10 @@ def song(screen, bg):
             for key in keys:
                 if key.rect.colliderect(rect) and key.handled:
                     map_rect.remove(rect)
+                    moving_sprites.remove(player)
+                    moving_sprites.add(player_attack)
+                    player_attack.current_sprite = 0
+                    player_attack.attack_stance = True
                     sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
                     pygame.mixer.Sound.play(sound_effecting)
                     key.handled = True
