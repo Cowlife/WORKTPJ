@@ -1,11 +1,13 @@
+import time
+
 import pygame
 import pygame_widgets
-from pygame import mixer
+from pygame import mixer, image
 
 import global_functions
 import scenes.menu
 from keys import keys
-
+from player import Player
 
 
 def load(map):
@@ -50,8 +52,9 @@ def load(map):
     return rects
 
 
-def song(screen, bg, counter):
+def song(screen, bg):
     mixer.init()
+    counter = 0
 
     clock = pygame.time.Clock()
     # Creating the sprites and groups
@@ -84,6 +87,11 @@ def song(screen, bg, counter):
         bg_images.append(bg_image)
     bg_width = bg_images[0].get_width()
 
+    person = image.load('sprites_player/64969.png')
+    moving_sprites = pygame.sprite.Group()
+    player = Player((100, 400), False, person, (62, 5059), (744, 62), 12)
+    moving_sprites.add(player)
+
     while True:
         clock.tick(60)
 
@@ -94,6 +102,7 @@ def song(screen, bg, counter):
                 quit()
             if event.type == timer_event:
                 counter += 1
+                print(counter)
                 text = font.render(str(counter), True, (222, 109, 11))
 
         screen.fill((0, 0, 0))
@@ -104,17 +113,18 @@ def song(screen, bg, counter):
             for i in bg_images:
                 # printing ground tile
                 screen.blit(ground_image, ((x * ground_width) - scroll * 2.5, SCREEN_HEIGHT - ground_height))
-
                 # printing background
                 screen.blit(i, ((x * bg_width) - scroll * speed, 0))
                 speed += 0.8
 
         # scroll background
         scroll += 2
-
         pygame_widgets.update(event)
         text_rect = text.get_rect()
         screen.blit(text, text_rect)
+
+        player.attack(0.25)
+        moving_sprites.draw(screen)
 
         # now we will loop through the keys and handle the events
         k = pygame.key.get_pressed()
@@ -166,8 +176,8 @@ def song(screen, bg, counter):
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_SPACE:
                             global_functions.fade_in()
-                            BG = pygame.image.load("assets/Background.png")
                             pygame.display.flip()
+                            timer_event = 0
                             scenes.menu.main_menu()
 
         pygame.display.update()

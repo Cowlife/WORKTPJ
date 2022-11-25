@@ -39,7 +39,7 @@ class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos):
         BG = pygame.image.load("assets/Background.png")
         FadeTransition.__init__(self)
-        song_file.song(global_functions.screen, BG, 0)
+        song_file.song(global_functions.screen, BG)
 
 
 class Quit(ButtonTransition, FadeTransition):
