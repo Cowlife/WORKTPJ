@@ -2,13 +2,12 @@ import sys
 
 import pygame
 
-from global_functions import get_font, screen
+from global_functions import screen, get_font
 from scenes.button import Button
 
 
 class HMenu:
-    def __init__(self, pos_x, initial_pos_y, bg, mapping_globals):
-        self.bg = bg
+    def __init__(self, pos_x, initial_pos_y, mapping_globals):
         self.pos_x = pos_x
         self.initial_pos_y = initial_pos_y
         self.font = get_font(50)

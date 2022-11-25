@@ -2,6 +2,7 @@ import pygame
 import pygame_widgets
 from pygame import mixer, image
 
+import button_transitions
 import global_functions
 import scenes.menu
 from keys import keys
@@ -87,13 +88,13 @@ def song(screen, bg):
 
     person = image.load('sprites_player/bowser_test.png')
     moving_sprites = pygame.sprite.Group()
-    player = Player((100, 300), False, person, (1, 16), (1344, 70), (0, 0))
-    player_attack = Player((100, 300), False, person, (1, 9), (999, 60), (26, 89))
+    player = Player((50, 400), False, person, (1, 16), (1344, 70), (0, 0))
+    player_attack = Player((50, 400), False, person, (1, 9), (999, 60), (26, 89))
     moving_sprites.add(player)
 
     while True:
         clock.tick(60)
-        h = pygame.key.get_pressed()
+
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -188,6 +189,6 @@ def song(screen, bg):
                             global_functions.fade_in()
                             pygame.display.flip()
                             timer_event = 0
-                            scenes.menu.main_menu()
+                            scenes.menu.transitory_menu(True, button_transitions.Globals.mapping_buttons_start)
 
         pygame.display.update()
