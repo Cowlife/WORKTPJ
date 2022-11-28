@@ -37,7 +37,7 @@ class HMenu:
 
     def button_hover_effect(self):
         for button in self.buttons:
-            button.changeColor(self.menu_mouse_pos)
+            button.changeColorAndCheckForInput(self.menu_mouse_pos)
             button.update(screen)
 
     def handle_input(self):
@@ -47,9 +47,8 @@ class HMenu:
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for i in self.buttons:
-                    if self.buttons[self.buttons.index(i)].checkForInput(self.menu_mouse_pos):
+                    if self.buttons[self.buttons.index(i)].changeColorAndCheckForInput(self.menu_mouse_pos):
                         result = self.mapping_globals[self.buttons.index(i)]
-                        print(result)
                         result.execute(self, self.buttons, self.menu_mouse_pos)
-                        print(result.execute(self, self.buttons, self.menu_mouse_pos))
+
 

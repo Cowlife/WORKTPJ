@@ -162,33 +162,6 @@ def song(screen, bg):
         if counter == 10:
             pygame.display.flip()
             global_functions.fade_in()
-            bg_rect = bg.get_rect()
-            screen.blit(bg, bg_rect)
+            scenes.menu.transitory_menu(True, button_transitions.Globals.mapping_buttons_overlay)
 
-            font = pygame.font.Font("assets/font.ttf", 64)
-            text_surface = font.render("Level Complete!", True, "white")
-            text_rect = text_surface.get_rect()
-            text_rect.midtop = (640, 180)
-            screen.blit(text_surface, text_rect)
-
-            font = pygame.font.Font("assets/font.ttf", 16)
-            text_surface = font.render("Press SPACE to go towards the Main Menu.", True, "white")
-            text_rect = text_surface.get_rect()
-            text_rect.midtop = (640, 600)
-            screen.blit(text_surface, text_rect)
-
-            pygame.display.flip()
-
-            waiting = True
-            while waiting:
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            global_functions.fade_in()
-                            pygame.display.flip()
-                            timer_event = 0
-                            scenes.menu.transitory_menu(True, button_transitions.Globals.mapping_buttons_start)
-
-        pygame.display.update()
+        pygame.display.flip()

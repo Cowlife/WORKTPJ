@@ -81,5 +81,13 @@ class Globals:
         "image_inputs": ["Play", "Options"],
         "text_inputs": ["BACK", "TEST SONG"],
     }
-
-
+    mapping_buttons_overlay = {
+        0: Menu,
+        "pos": 640,
+        "initial_y_pos": 620,
+        "title": "Level Complete!",
+        "font_size": 64,
+        "rect_cd": (640, 100),
+        "image_inputs": ["Play"],
+        "text_inputs": ["BACK"],
+    }

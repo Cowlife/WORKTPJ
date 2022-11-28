@@ -15,4 +15,4 @@ class MainTransition:
         self.h_menu.button_hover_effect()
         self.h_menu.handle_input()
         # to set-up the screen
-        pygame.display.update()
+        pygame.display.flip()
