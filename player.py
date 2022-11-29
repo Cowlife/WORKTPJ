@@ -20,7 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.main_element = main_element
         self.spritesheet_list()
         self.current_sprite = 0
-        self.image = self.sprites[self.current_sprite]
+        self.image = self.sprites[self.current_sprite].convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos[0], pos[1]]
 

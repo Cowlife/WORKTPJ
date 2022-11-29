@@ -3,7 +3,9 @@ import time
 import pygame
 from pygame_widgets.progressbar import ProgressBar
 
-screen_vars = (1280, 720)
+width_var = 1280
+height_var = 720
+screen_vars = (width_var, height_var)
 screen = pygame.display.set_mode(screen_vars)
 menu_bg = pygame.image.load("assets/Background.png")
 

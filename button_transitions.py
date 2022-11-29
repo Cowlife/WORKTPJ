@@ -38,7 +38,7 @@ class Menu(ButtonTransition, FadeTransition):
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos):
         FadeTransition.__init__(self)
-        song_file.song(global_functions.screen, global_functions.menu_bg)
+        song_file.song(global_functions.screen)
 
 
 class Quit(ButtonTransition, FadeTransition):
