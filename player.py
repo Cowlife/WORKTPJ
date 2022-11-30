@@ -13,14 +13,14 @@ class Player(pygame.sprite.Sprite):
         self.attack_animation = False
         self.sprites = []
         self.frames = math.prod(frames_in_x_and_y)
-        self.rows = self.width_height[0] / frames_in_x_and_y[0]
-        self.columns = self.width_height[1] / frames_in_x_and_y[1]
-        self.frame_example = self.width_height[0] / frames_in_x_and_y[1]
+        self.rows = self.width_height[0] / frames_in_x_and_y[1]
+        self.columns = self.width_height[1] / frames_in_x_and_y[0]
+        self.frame_example = self.width_height[0] / frames_in_x_and_y[0]
         self.x_y_start = x_y_start
         self.main_element = main_element
         self.spritesheet_list()
         self.current_sprite = 0
-        self.image = self.sprites[self.current_sprite].convert_alpha()
+        self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos[0], pos[1]]
 
@@ -39,8 +39,8 @@ class Player(pygame.sprite.Sprite):
             for x in range(self.frames):
                 self.sprites.append(
                     self.main_element.subsurface(
-                        (x % self.frames_in_x_and_y[0]) * self.rows,
-                        (x // self.frames_in_x_and_y[0]) * self.columns,
+                        (x % self.frames_in_x_and_y[1]) * self.rows,
+                        (x // self.frames_in_x_and_y[1]) * self.columns,
                         self.rows, self.columns))
 
         else:

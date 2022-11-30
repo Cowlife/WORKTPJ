@@ -9,7 +9,7 @@ from keys import keys
 from player import Player
 
 
-def load(map, img_with_flip, moving_enemies):
+def load(map):
     rects = []
     enemies = []
     mixer.music.load("musics/" + map + ".mp3")
@@ -21,9 +21,6 @@ def load(map, img_with_flip, moving_enemies):
             if data[y][x] == '0':
                 key_pressers = pygame.Rect((x * 100) + 650, (y * 100) + 400, 50, 25)
                 rects.append(key_pressers)
-                enemy = Player(((x * 100) + 650, (y * 100) + 400), False, img_with_flip, (1, 2), (90, 45), (0, 0))
-                moving_enemies.add(enemy)
-                enemies.append(enemy)
             elif data[y][x] == '=':  # starting rythm
                 key_pressers = pygame.Rect(x * 100, y * 100, 50, 25)
                 key_pressers2 = pygame.Rect(x * 100 + 50, y * 100, 50, 25)
@@ -49,7 +46,7 @@ def load(map, img_with_flip, moving_enemies):
                 key_pressers.move_ip(600, 400)
                 key_pressers2.move_ip(600, 400)
 
-    return rects, moving_enemies, enemies
+    return rects
 
 
 def song(screen):
@@ -58,12 +55,25 @@ def song(screen):
 
     clock = pygame.time.Clock()
 
+    person = image.load('sprites_player/bowser_test.png')
+    person2 = image.load('sprites_player/New.png')
+    person3 = image.load('sprites_player/New2.png')
     entity = image.load('sprites_enemy/slime.png')
     img_with_flip = pygame.transform.flip(entity, True, False)
-    moving_enemies = pygame.sprite.Group()
+    test_sprite = image.load('sprites_enemy/dancing.png')
+    moving_sprites = pygame.sprite.Group()
+    player = Player((50, 400), False, person, (16, 1), (1344, 70), (0, 0))
+    player_attack = Player((50, 400), False, person, (9, 1), (999, 60), (26, 89))
+    player2 = Player((50, 500), False, person2, (12, 1), (1008, 58), (0, 0))
+    player2_attack = Player((50, 500), False, person2, (4, 1), (448, 75), (0, 70))
+    player3 = Player((50, 600), False, person3, (12, 1), (1068, 75), (0, 0))
+    player3_attack = Player((50, 600), False, person3, (4, 1), (444, 75), (0, 79))
+    moving_sprites.add(player, player2, player3)
+    enemy_attack = Player((400, 400), False, img_with_flip, (2, 1), (90, 45), (0, 0))
+
     # Creating the sprites and groups
     # now we will create a map by making a txt file
-    map_rect = load("music3", img_with_flip, moving_enemies)
+    map_rect = load("music3")
 
     font = pygame.font.Font("assets/font.ttf", 100)
     text = font.render(str(counter), True, (222, 109, 11))
@@ -89,17 +99,6 @@ def song(screen):
         bg_images.append(bg_image)
     bg_width = bg_images[0].get_width()
 
-    person = image.load('sprites_player/bowser_test.png')
-    person2 = image.load('sprites_player/New.png')
-    person3 = image.load('sprites_player/New2.png')
-    moving_sprites = pygame.sprite.Group()
-    player = Player((50, 400), False, person, (1, 16), (1344, 70), (0, 0))
-    player_attack = Player((50, 400), False, person, (1, 9), (999, 60), (26, 89))
-    player2 = Player((50, 500), False, person2, (1, 12), (1008, 58), (0, 0))
-    player2_attack = Player((50, 500), False, person2, (1, 4), (448, 75), (0, 70))
-    player3 = Player((50, 600), False, person3, (1, 12), (1068, 75), (0, 0))
-    player3_attack = Player((50, 600), False, person3, (1, 4), (444, 75), (0, 79))
-    moving_sprites.add(player, player2, player3)
 
     while True:
         clock.tick(60)
@@ -172,34 +171,35 @@ def song(screen):
                 pygame.draw.rect(screen, key.color2, key.rect)
                 key.handled = True
             # now when we press our keys they will change color
-        for rect in map_rect[0]:
-            map_rect[1].draw(screen)
+        for rect in map_rect:
             pygame.draw.rect(screen, (200, 0, 0), rect)
             pygame.draw.circle(screen, (0, 255, 0), rect.center, circle_radius_start, 2)
-
+            screen.blit(enemy_attack.image, rect)
+            enemy_attack.move(0.5)
             rect.x -= 5
             for key in keys:
                 if key.rect.colliderect(rect) and key.handled:
-                    map_rect[0].remove(rect)
+                    map_rect.remove(rect)
                     if key.key == pygame.K_a:
                         moving_sprites.remove(player)
                         moving_sprites.add(player_attack)
                         player_attack.current_sprite = 0
                         player_attack.attack_stance = True
+                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
                     if key.key == pygame.K_s:
                         moving_sprites.remove(player2)
                         moving_sprites.add(player2_attack)
                         player2_attack.current_sprite = 0
                         player2_attack.attack_stance = True
+                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
                     if key.key == pygame.K_d:
                         moving_sprites.remove(player3)
                         moving_sprites.add(player3_attack)
                         player3_attack.current_sprite = 0
                         player3_attack.attack_stance = True
-                    sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
+                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
                     pygame.mixer.Sound.play(sound_effecting)
                     key.handled = True
-                    break
 
         if counter == 10:
             pygame.display.flip()
