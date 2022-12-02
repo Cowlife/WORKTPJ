@@ -1,13 +1,22 @@
+import time
+
 import pygame
 import pygame_widgets
 from pygame import mixer, image
 from pygame.time import Clock
-
+from pygame_widgets.progressbar import ProgressBar
 import button_transitions
 import global_functions
 import scenes.menu
 from keys import keys
 from player import Entity
+
+
+def progressing(screen):  # 0.1
+    startTime = time.time()
+    progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / 10, curved=False)
+    # /10 seconds
+    return progressBar
 
 
 def load(map):
@@ -81,7 +90,7 @@ def song(screen, counter, song_file):
     timer_event = pygame.USEREVENT + 1
     pygame.time.set_timer(timer_event, 1000)
 
-    global_functions.progressing(screen)
+    progressing(screen)
 
     ground_image = pygame.image.load("scenario/ground.png").convert_alpha()
     ground_image = pygame.transform.scale(ground_image, (1280, 256))
@@ -121,7 +130,7 @@ def song(screen, counter, song_file):
             for i in bg_images:
                 # printing ground tile
                 screen.blit(ground_image,
-                            ((x * ground_width) - scroll * 2.5, global_functions.height_var - ground_height))
+                            ((x * ground_width) - scroll * 2.5, global_functions.screen_vars[1] - ground_height))
                 # printing background
                 screen.blit(i, ((x * bg_width) - scroll * speed, 0))
                 speed += 0.8
@@ -203,7 +212,7 @@ def song(screen, counter, song_file):
 
         if counter == 10:
             pygame.display.flip()
-            global_functions.fade_in()
+            # global_functions.fade_in()
             scenes.menu.transitory_menu(True, button_transitions.Globals.mapping_buttons_overlay)
 
         pygame.display.flip()
