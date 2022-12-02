@@ -1,17 +1,17 @@
 import pygame
 import pygame_widgets
 from pygame import mixer, image
+from pygame.time import Clock
 
 import button_transitions
 import global_functions
 import scenes.menu
 from keys import keys
-from player import Player
+from player import Entity
 
 
 def load(map):
     rects = []
-    enemies = []
     mixer.music.load("musics/" + map + ".mp3")
     mixer.music.play()
     f = open("charts/" + map + ".txt", 'r')
@@ -49,37 +49,36 @@ def load(map):
     return rects
 
 
-def song(screen):
-    mixer.init()
-    counter = 0
+def song2():
+    pass
 
-    clock = pygame.time.Clock()
 
-    person = image.load('sprites_player/bowser_test.png')
-    person2 = image.load('sprites_player/New.png')
-    person3 = image.load('sprites_player/New2.png')
+def song(screen, counter, song_file):
+    clock = Clock()
+
+    person = image.load('sprites_player/Bowser.png')
+    person2 = image.load('sprites_player/Mario.png')
+    person3 = image.load('sprites_player/Luigi.png')
     entity = image.load('sprites_enemy/slime.png')
     img_with_flip = pygame.transform.flip(entity, True, False)
     test_sprite = image.load('sprites_enemy/dancing.png')
     moving_sprites = pygame.sprite.Group()
-    player = Player((50, 400), False, person, (16, 1), (1344, 70), (0, 0))
-    player_attack = Player((50, 400), False, person, (9, 1), (999, 60), (26, 89))
-    player2 = Player((50, 500), False, person2, (12, 1), (1008, 58), (0, 0))
-    player2_attack = Player((50, 500), False, person2, (4, 1), (448, 75), (0, 70))
-    player3 = Player((50, 600), False, person3, (12, 1), (1068, 75), (0, 0))
-    player3_attack = Player((50, 600), False, person3, (4, 1), (444, 75), (0, 79))
+    player = Entity((50, 400), False, person, (16, 1), (1344, 70), (0, 0))
+    player_attack = Entity((50, 400), False, person, (9, 1), (999, 60), (26, 89))
+    player2 = Entity((50, 500), False, person2, (12, 1), (1008, 58), (0, 0))
+    player2_attack = Entity((50, 500), False, person2, (4, 1), (448, 75), (0, 70))
+    player3 = Entity((50, 600), False, person3, (12, 1), (1068, 75), (0, 0))
+    player3_attack = Entity((50, 600), False, person3, (4, 1), (444, 75), (0, 79))
     moving_sprites.add(player, player2, player3)
-    enemy_attack = Player((400, 400), False, img_with_flip, (2, 1), (90, 45), (0, 0))
+    enemy_attack = Entity((400, 400), False, img_with_flip, (2, 1), (90, 45), (0, 0))
 
     # Creating the sprites and groups
     # now we will create a map by making a txt file
-    map_rect = load("music3")
 
     font = pygame.font.Font("assets/font.ttf", 100)
     text = font.render(str(counter), True, (222, 109, 11))
 
     timer_event = pygame.USEREVENT + 1
-    print(timer_event)
     pygame.time.set_timer(timer_event, 1000)
 
     global_functions.progressing(screen)
@@ -99,9 +98,10 @@ def song(screen):
         bg_images.append(bg_image)
     bg_width = bg_images[0].get_width()
 
-
+    mixer.init()
+    map_rect = load(song_file)
     while True:
-        clock.tick(60)
+        clock.tick(60)  # limit movement screen
 
         for event in pygame.event.get():
 

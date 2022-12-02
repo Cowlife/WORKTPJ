@@ -5,6 +5,8 @@ import pygame
 import global_functions
 import scenes.menu
 import song_file
+from scenes.song_transition import SongChart
+from sprites_player.database import DataBaseModel
 
 
 class FadeTransition:
@@ -38,7 +40,12 @@ class Menu(ButtonTransition, FadeTransition):
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos):
         FadeTransition.__init__(self)
-        song_file.song(global_functions.screen)
+        #song = SongChart()
+        #song.play()
+        test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432)
+        test.retrieve()
+        print(f'{test.lister}namor')
+        song_file.song(global_functions.screen, 0, "music3")
 
 
 class Quit(ButtonTransition, FadeTransition):

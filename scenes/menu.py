@@ -1,3 +1,5 @@
+from pygame import image
+
 from global_functions import screen, menu_bg
 from scenes.menu_transition import MainTransition
 

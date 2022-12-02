@@ -3,8 +3,8 @@ import math
 import pygame
 
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, entire, main_element, frames_in_x_and_y, width_height, x_y_start=(1, 1)):
+class Entity(pygame.sprite.Sprite):
+    def __init__(self, pos, entire, main_element, frames_in_x_and_y, width_height, x_y_start=(0, 0)):
         super().__init__()
         self.entire = entire
         self.attack_stance = False
