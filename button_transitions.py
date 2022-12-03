@@ -2,60 +2,67 @@ import sys
 
 import pygame
 
-import global_functions
-import scenes.menu
 import song_file
-from scenes.song_transition import SongChart
+from scenes.menu import ScreenMenu
+
 from sprites_player.database import DataBaseModel
 
 
 class FadeTransition:
-    def __init__(self):
+    def __init__(self, screen):
+        self.menu = ScreenMenu()
+        self.screen = screen
+
+    def black_out(self):
         fade = pygame.Surface((1280, 720))
         fade.fill((0, 0, 0))
         for alpha in range(0, 300):
             fade.set_alpha(alpha)
-            global_functions.screen.blit(fade, (0, 0))
+            self.screen.blit(fade, (0, 0))
             pygame.display.update()
             pygame.time.delay(5)
 
 
 class ButtonTransition(FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
+    def execute(self, buttons, menu_mouse_pos, screen):
         raise NotImplemented
 
 
 class Play(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
-        FadeTransition.__init__(self)
-        scenes.menu.transitory_menu(False, Globals.mapping_buttons_play)
+    def execute(self, buttons, menu_mouse_pos, screen):
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+        self.menu.executioner(False, Globals.mapping_buttons_play, screen)
 
 
 class Options(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
-        FadeTransition.__init__(self)
-        scenes.menu.transitory_menu(False, Globals.mapping_buttons_options, "white")
+    def execute(self, buttons, menu_mouse_pos, screen):
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+        self.menu.executioner(False, Globals.mapping_buttons_options, "white", screen)
 
 
 class Menu(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
-        FadeTransition.__init__(self)
-        scenes.menu.transitory_menu(True, Globals.mapping_buttons_start)
+    def execute(self, buttons, menu_mouse_pos, screen):
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+        self.menu.executioner(True, Globals.mapping_buttons_start, screen)
 
 
 class Song(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
-        FadeTransition.__init__(self)
-        #song = SongChart()
-        #song.play()
+    def execute(self, buttons, menu_mouse_pos, screen):
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+        # song = SongChart()
+        # song.play()
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432)
         test.retrieve()
         print(f'{test.lister}namor')
-        song_file.song(global_functions.screen, 0, "music3")
+        song_file.song(self.screen, "music3")
 
 
 class Quit(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos):
+    def execute(self, buttons, menu_mouse_pos, screen):
         pygame.quit()
         sys.exit()
 
@@ -73,7 +80,7 @@ class Globals:
         "image_inputs": ["Play", "Options", "Quit"],
         "text_inputs": ["PLAY", "OPTIONS", "QUIT"],
         "color_base": "#2596be",
-        "color_hovering": "Red",
+        "color_hovering": "Green",
         "font_size": 50,
         "menu_bg": "assets/Background.png",
     }

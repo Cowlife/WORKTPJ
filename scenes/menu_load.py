@@ -2,21 +2,21 @@ import sys
 
 import pygame
 
-from global_functions import screen
 from scenes.button import Button
 
 
 class HMenu:
-    def __init__(self, x_pos, initial_y_pos, font_size, color_base, color_hovering):
+    def __init__(self, x_pos, initial_y_pos, font_size, color_base, color_hovering, screen):
         self.x_pos = x_pos
         self.initial_y_pos = initial_y_pos
         self.font = pygame.font.Font("assets/font.ttf", font_size)
         self.color_base = color_base
         self.color_hovering = color_hovering
         self.menu_mouse_pos = pygame.mouse.get_pos()
+        self.screen = screen
         self.buttons = []
 
-    def drawing_title(self, title, font_size_title, rect_cd):
+    def drawing_title(self, title, font_size_title, rect_cd, screen):
         text_menu = pygame.font.Font("assets/font.ttf", font_size_title).render(title, True, "#b68f40")
         rectangle_menu = text_menu.get_rect(center=rect_cd)
         screen.blit(text_menu, rectangle_menu)
@@ -34,7 +34,7 @@ class HMenu:
                     self.initial_y_pos += 150
                     self.buttons.append(outlier)
 
-    def button_hover_effect(self):
+    def button_hover_effect(self, screen):
         for button in self.buttons:
             button.changeColorAndCheckForInput(self.menu_mouse_pos)
             button.update(screen)
@@ -48,21 +48,21 @@ class HMenu:
                 for i in self.buttons:
                     if self.buttons[self.buttons.index(i)].changeColorAndCheckForInput(self.menu_mouse_pos):
                         result = mapping_globals[self.buttons.index(i)]
-                        result.execute(self, self.buttons, self.menu_mouse_pos)
+                        result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
 
-    def struture_execution(self, title, font_size_title, rect_cd, image_inputs, text_inputs):
+    def struture_execution(self, title, font_size_title, rect_cd, image_inputs, text_inputs, screen):
         raise NotImplemented
 
 
 class MainTransition(HMenu):
-    def __init__(self, x_pos, initial_y_pos, font_size, color_base, color_hovering, mapping_globals):
-        super().__init__(x_pos, initial_y_pos, font_size, color_base, color_hovering)
+    def __init__(self, x_pos, initial_y_pos, font_size, color_base, color_hovering, mapping_globals, screen):
+        super().__init__(x_pos, initial_y_pos, font_size, color_base, color_hovering, screen)
         self.mapping_globals = mapping_globals
 
-    def struture_execution(self, title, font_size_title, rect_cd, image_inputs, text_inputs):
-        self.drawing_title(title, font_size_title, rect_cd)
+    def struture_execution(self, title, font_size_title, rect_cd, image_inputs, text_inputs, screen):
+        self.drawing_title(title, font_size_title, rect_cd, screen)
         self.inserting_asset_buttons(image_inputs, text_inputs)
-        self.button_hover_effect()
+        self.button_hover_effect(screen)
         self.handle_input(self.mapping_globals)
         # to set-up the screen
         pygame.display.flip()

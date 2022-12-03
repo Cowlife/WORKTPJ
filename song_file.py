@@ -6,10 +6,11 @@ from pygame import mixer, image
 from pygame.time import Clock
 from pygame_widgets.progressbar import ProgressBar
 import button_transitions
-import global_functions
-import scenes.menu
+
+
 from keys import keys
 from player import Entity
+from scenes.menu import ScreenMenu
 
 
 def progressing(screen):  # 0.1
@@ -58,13 +59,14 @@ def load(map):
     return rects
 
 
-def song2():
-    pass
+class Song:
+    def __init__(self, screen, song_file):
+        pass
 
 
-def song(screen, counter, song_file):
+def song(screen, song_file):
     clock = Clock()
-
+    counter = 0
     person = image.load('sprites_player/Bowser.png')
     person2 = image.load('sprites_player/Mario.png')
     person3 = image.load('sprites_player/Luigi.png')
@@ -130,7 +132,7 @@ def song(screen, counter, song_file):
             for i in bg_images:
                 # printing ground tile
                 screen.blit(ground_image,
-                            ((x * ground_width) - scroll * 2.5, global_functions.screen_vars[1] - ground_height))
+                            ((x * ground_width) - scroll * 2.5, 720 - ground_height)) #screen height
                 # printing background
                 screen.blit(i, ((x * bg_width) - scroll * speed, 0))
                 speed += 0.8
@@ -187,7 +189,7 @@ def song(screen, counter, song_file):
             enemy_attack.move(0.5)
             rect.x -= 5
             for key in keys:
-                if key.rect.colliderect(rect) and key.handled:
+                if key.rect.colliderect(rect) and key.handled: # not for actually skill
                     map_rect.remove(rect)
                     if key.key == pygame.K_a:
                         moving_sprites.remove(player)
@@ -213,6 +215,7 @@ def song(screen, counter, song_file):
         if counter == 10:
             pygame.display.flip()
             # global_functions.fade_in()
-            scenes.menu.transitory_menu(True, button_transitions.Globals.mapping_buttons_overlay)
+            st_menu = ScreenMenu()
+            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay)
 
         pygame.display.flip()
