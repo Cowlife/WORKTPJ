@@ -1,11 +1,12 @@
 import sys
 
 import pygame
+from pygame import mixer
 
 import song_file
 from scenes.menu import ScreenMenu
 
-from sprites_player.database import DataBaseModel
+from assets.sprites_player.database import DataBaseModel
 
 
 class FadeTransition:
@@ -24,12 +25,17 @@ class FadeTransition:
 
 
 class ButtonTransition(FadeTransition):
+
+    def transition(self):
+        pass
+
     def execute(self, buttons, menu_mouse_pos, screen):
         raise NotImplemented
 
 
 class Play(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
+        mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         self.menu.executioner(False, Globals.mapping_buttons_play, screen)
@@ -37,6 +43,7 @@ class Play(ButtonTransition, FadeTransition):
 
 class Options(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
+        mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         self.menu.executioner(False, Globals.mapping_buttons_options, "white", screen)
@@ -44,13 +51,23 @@ class Options(ButtonTransition, FadeTransition):
 
 class Menu(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
+        mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         self.menu.executioner(True, Globals.mapping_buttons_start, screen)
 
 
+class CharacterSelect(ButtonTransition, FadeTransition):
+    def execute(self, buttons, menu_mouse_pos, screen):
+        mixer.music.stop()
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen)
+
+
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
+        mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         # song = SongChart()
@@ -72,8 +89,8 @@ class Globals:
         0: Play,
         1: Options,
         2: Quit,
-        "pos": 440,
-        "initial_y_pos": 250,
+        "x_pos": 440,
+        "y_pos": 250,
         "title": "MAIN MENU",
         "font_size_title": 100,
         "rect_cd": (640, 100),
@@ -82,12 +99,15 @@ class Globals:
         "color_base": "#2596be",
         "color_hovering": "Green",
         "font_size": 50,
-        "menu_bg": "assets/Background.png",
+        "horizontal": False,
+        "separation": 150,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/Menu.mp3"
     }
     mapping_buttons_options = {
         0: Menu,
-        "pos": 640,
-        "initial_y_pos": 460,
+        "x_pos": 640,
+        "y_pos": 460,
         "title": "This is the OPTIONS screen.",
         "font_size_title": 45,
         "rect_cd": (640, 260),
@@ -96,13 +116,16 @@ class Globals:
         "color_base": "#2596be",
         "color_hovering": "Red",
         "font_size": 50,
-        "menu_bg": "assets/Background.png",
+        "horizontal": False,
+        "separation": 150,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/PlayHub.mp3"
     }
     mapping_buttons_play = {
         0: Menu,
-        1: Song,
-        "pos": 640,
-        "initial_y_pos": 360,
+        1: CharacterSelect,
+        "x_pos": 640,
+        "y_pos": 360,
         "title": "This is the PLAY screen.",
         "font_size_title": 45,
         "rect_cd": (640, 260),
@@ -111,12 +134,16 @@ class Globals:
         "color_base": "#2596be",
         "color_hovering": "Red",
         "font_size": 50,
-        "menu_bg": "assets/Background.png",
+        "horizontal": False,
+        "separation": 150,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/PlayHub.mp3"
+
     }
     mapping_buttons_overlay = {
         0: Menu,
-        "pos": 640,
-        "initial_y_pos": 620,
+        "x_pos": 640,
+        "y_pos": 620,
         "title": "Level Complete!",
         "font_size_title": 64,
         "rect_cd": (640, 100),
@@ -125,5 +152,28 @@ class Globals:
         "color_base": "#2596be",
         "color_hovering": "Red",
         "font_size": 50,
-        "menu_bg": "assets/Background.png",
+        "horizontal": False,
+        "separation": 150,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/PlayHub.mp3"
+
+    }
+    mapping_buttons_character_select = {
+        0: Menu,
+        1: Song,
+        "x_pos": 340,
+        "y_pos": 610,
+        "title": "Choose your characters!",
+        "font_size_title": 32,
+        "rect_cd": (640, 50),
+        "image_inputs": ["Play", "Start"],
+        "text_inputs": ["BACK", "START"],
+        "color_base": "#2596be",
+        "color_hovering": "Yellow",
+        "font_size": 50,
+        "horizontal": True,
+        "separation": 600,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/PlayHub.mp3"
+
     }

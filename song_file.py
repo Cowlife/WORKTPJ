@@ -7,9 +7,8 @@ from pygame.time import Clock
 from pygame_widgets.progressbar import ProgressBar
 import button_transitions
 
-
 from keys import keys
-from player import Entity
+from player import Entity, ImageEntityModel, EntityModel
 from scenes.menu import ScreenMenu
 
 
@@ -67,26 +66,38 @@ class Song:
 def song(screen, song_file):
     clock = Clock()
     counter = 0
-    person = image.load('sprites_player/Bowser.png')
-    person2 = image.load('sprites_player/Mario.png')
-    person3 = image.load('sprites_player/Luigi.png')
-    entity = image.load('sprites_enemy/slime.png')
-    img_with_flip = pygame.transform.flip(entity, True, False)
-    test_sprite = image.load('sprites_enemy/dancing.png')
+    # test_sprite = image.load('assets/sprites_enemy/dancing.png')
+
+    personImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_player/Bowser.png'))
+    personEntityModel = EntityModel(personImageEntityModel, (16, 1), (1344, 70))
+    player = Entity((50, 400), personEntityModel)
+    personEntityModelAttack = EntityModel(personImageEntityModel, (9, 1), (999, 60), (26, 89))
+    player_attack = Entity((50, 400), personEntityModelAttack)
+
+    personImageEntityModel2 = ImageEntityModel(False, image.load('assets/sprites_player/Mario.png'))
+    personEntityModel2 = EntityModel(personImageEntityModel2, (12, 1), (1008, 58))
+    player2 = Entity((50, 500), personEntityModel2)
+    personEntityModelAttack2 = EntityModel(personImageEntityModel2, (4, 1), (448, 75), (0, 70))
+    player2_attack = Entity((50, 500), personEntityModelAttack2)
+
+    personImageEntityModel3 = ImageEntityModel(False, image.load('assets/sprites_player/Luigi.png'))
+    personEntityModel3 = EntityModel(personImageEntityModel3, (12, 1), (1068, 75))
+    player3 = Entity((50, 600), personEntityModel3)
+    personEntityModelAttack3 = EntityModel(personImageEntityModel3, (4, 1), (444, 75), (0, 79))
+    player3_attack = Entity((50, 600), personEntityModelAttack3)
+
+    enemyImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_enemy/slime.png'), True)
+    enemyEntityModel = EntityModel(enemyImageEntityModel, (2, 1), (90, 45))
+    enemy_attack = Entity((400, 400), enemyEntityModel)
+
     moving_sprites = pygame.sprite.Group()
-    player = Entity((50, 400), False, person, (16, 1), (1344, 70), (0, 0))
-    player_attack = Entity((50, 400), False, person, (9, 1), (999, 60), (26, 89))
-    player2 = Entity((50, 500), False, person2, (12, 1), (1008, 58), (0, 0))
-    player2_attack = Entity((50, 500), False, person2, (4, 1), (448, 75), (0, 70))
-    player3 = Entity((50, 600), False, person3, (12, 1), (1068, 75), (0, 0))
-    player3_attack = Entity((50, 600), False, person3, (4, 1), (444, 75), (0, 79))
+
     moving_sprites.add(player, player2, player3)
-    enemy_attack = Entity((400, 400), False, img_with_flip, (2, 1), (90, 45), (0, 0))
 
     # Creating the sprites and groups
     # now we will create a map by making a txt file
 
-    font = pygame.font.Font("assets/font.ttf", 100)
+    font = pygame.font.Font("assets/fonts/font.ttf", 100)
     text = font.render(str(counter), True, (222, 109, 11))
 
     timer_event = pygame.USEREVENT + 1
@@ -132,7 +143,7 @@ def song(screen, song_file):
             for i in bg_images:
                 # printing ground tile
                 screen.blit(ground_image,
-                            ((x * ground_width) - scroll * 2.5, 720 - ground_height)) #screen height
+                            ((x * ground_width) - scroll * 2.5, 720 - ground_height))  # screen height
                 # printing background
                 screen.blit(i, ((x * bg_width) - scroll * speed, 0))
                 speed += 0.8
@@ -189,26 +200,26 @@ def song(screen, song_file):
             enemy_attack.move(0.5)
             rect.x -= 5
             for key in keys:
-                if key.rect.colliderect(rect) and key.handled: # not for actually skill
+                if key.rect.colliderect(rect) and key.handled:  # not for actually skill
                     map_rect.remove(rect)
                     if key.key == pygame.K_a:
                         moving_sprites.remove(player)
                         moving_sprites.add(player_attack)
                         player_attack.current_sprite = 0
                         player_attack.attack_stance = True
-                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
+                        sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                     if key.key == pygame.K_s:
                         moving_sprites.remove(player2)
                         moving_sprites.add(player2_attack)
                         player2_attack.current_sprite = 0
                         player2_attack.attack_stance = True
-                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
+                        sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                     if key.key == pygame.K_d:
                         moving_sprites.remove(player3)
                         moving_sprites.add(player3_attack)
                         player3_attack.current_sprite = 0
                         player3_attack.attack_stance = True
-                        sound_effecting = pygame.mixer.Sound("sound_effects/attack sound effect.wav")
+                        sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                     pygame.mixer.Sound.play(sound_effecting)
                     key.handled = True
 
@@ -216,6 +227,6 @@ def song(screen, song_file):
             pygame.display.flip()
             # global_functions.fade_in()
             st_menu = ScreenMenu()
-            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay)
+            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay, screen)
 
         pygame.display.flip()

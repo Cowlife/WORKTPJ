@@ -3,21 +3,41 @@ import math
 import pygame
 
 
-class Entity(pygame.sprite.Sprite):
-    def __init__(self, pos, entire, main_element, frames_in_x_and_y, width_height, x_y_start=(0, 0)):
-        super().__init__()
-        self.entire = entire
-        self.attack_stance = False
-        self.frames_in_x_and_y = frames_in_x_and_y  # total sprites
-        self.width_height = width_height
-        self.attack_animation = False
-        self.sprites = []
-        self.frames = math.prod(frames_in_x_and_y)
-        self.rows = self.width_height[0] / frames_in_x_and_y[1]
-        self.columns = self.width_height[1] / frames_in_x_and_y[0]
-        self.frame_example = self.width_height[0] / frames_in_x_and_y[0]
+class ImageEntityModel:
+    def __init__(self, entire, main_element, flip=False):
+        self._main_element = main_element
+        self._entire = entire
+        self._flip = flip
+
+    def get_main_element(self):
+        if self._flip:
+            self._main_element = pygame.transform.flip(self._main_element, True, False)
+        return self._main_element
+
+    def get_entire(self):
+        return self._entire
+
+
+class EntityModel:
+    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0)):
         self.x_y_start = x_y_start
-        self.main_element = main_element
+        self.frames_in_x_and_y = frames_in_x_and_y
+        self.width_height = width_height
+        self.main_element = imageentitymodel.get_main_element()
+        self.entire = imageentitymodel.get_entire()
+
+
+class Entity(pygame.sprite.Sprite):
+    def __init__(self, pos, entitymodel):
+        super().__init__()
+        self.entitymodel = entitymodel
+        self.attack_animation = False
+        self.attack_stance = False
+        self.sprites = []
+        self.frames = math.prod(self.entitymodel.frames_in_x_and_y)
+        self.rows = self.entitymodel.width_height[0] / self.entitymodel.frames_in_x_and_y[1]
+        self.columns = self.entitymodel.width_height[1] / self.entitymodel.frames_in_x_and_y[0]
+        self.frame_example = self.entitymodel.width_height[0] / self.entitymodel.frames_in_x_and_y[0]
         self.spritesheet_list()
         self.current_sprite = 0
         self.image = self.sprites[self.current_sprite]
@@ -35,17 +55,23 @@ class Entity(pygame.sprite.Sprite):
         self.image = self.sprites[int(self.current_sprite)]
 
     def spritesheet_list(self):
-        if self.entire:
+        if self.entitymodel.entire:
             for x in range(self.frames):
                 self.sprites.append(
-                    self.main_element.subsurface(
-                        (x % self.frames_in_x_and_y[1]) * self.rows,
-                        (x // self.frames_in_x_and_y[1]) * self.columns,
+                    self.entitymodel.main_element.subsurface(
+                        (x % self.entitymodel.frames_in_x_and_y[1]) * self.rows,
+                        (x // self.entitymodel.frames_in_x_and_y[1]) * self.columns,
                         self.rows, self.columns))
 
         else:
-            for x in range(self.x_y_start[0], self.width_height[0], int(self.frame_example)):  # [1344, 84]
+            for x in range(self.entitymodel.x_y_start[0], self.entitymodel.width_height[0],
+                           int(self.frame_example)):  # [1344, 84]
                 #     In this case the other value of self.frames is used for starting position
                 self.sprites.append(
-                    self.main_element.subsurface(x, self.x_y_start[1], int(self.frame_example), self.width_height[1]))
+                    self.entitymodel.main_element.subsurface(x, self.entitymodel.x_y_start[1], int(self.frame_example),
+                                                             self.entitymodel.width_height[1]))
 
+
+if __name__ == "__main__":
+    test = ImageEntityModel()
+    test2 = EntityModel()
