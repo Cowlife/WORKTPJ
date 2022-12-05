@@ -1,6 +1,7 @@
 import math
 
 import pygame
+from pygame import image
 
 
 class ImageEntityModel:
@@ -28,7 +29,7 @@ class EntityModel:
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, pos, entitymodel):
+    def __init__(self, pos, entitymodel) -> None:
         super().__init__()
         self.entitymodel = entitymodel
         self.attack_animation = False
@@ -71,7 +72,44 @@ class Entity(pygame.sprite.Sprite):
                     self.entitymodel.main_element.subsurface(x, self.entitymodel.x_y_start[1], int(self.frame_example),
                                                              self.entitymodel.width_height[1]))
 
+    def clone(self):
+        return NotImplemented
+
+
+class Slime(Entity):
+    def __init__(self, pos, entitymodel) -> None:
+        super().__init__(pos, entitymodel)
+        self.pos = pos
+
+    def clone(self) -> Entity:
+        return Slime(self.pos, self.entitymodel)
+
+
+class Sorceror(Entity):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def clone(self) -> Entity:
+        return Sorceror()
+
+
+class Spawner:
+    def spawn_Entity(self, prototype):
+        return prototype.clone()
+
+
+def main():
+    enemyImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_enemy/slime.png'), True)
+    enemyEntityModel = EntityModel(enemyImageEntityModel, (2, 1), (90, 45))
+    slime = Slime((400, 400), enemyEntityModel)
+    spawner = Spawner()
+
+    spawner.spawn_Entity(slime)
+    print(spawner.spawn_Entity(slime))
+
 
 if __name__ == "__main__":
-    test = ImageEntityModel()
-    test2 = EntityModel()
+    screen = pygame.display.set_mode((1280, 720))
+    while True:
+        main()
+

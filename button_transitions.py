@@ -6,7 +6,7 @@ from pygame import mixer
 import song_file
 from scenes.menu import ScreenMenu
 
-from assets.sprites_player.database import DataBaseModel
+from database import DataBaseModel
 
 
 class FadeTransition:
@@ -46,7 +46,7 @@ class Options(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        self.menu.executioner(False, Globals.mapping_buttons_options, "white", screen)
+        self.menu.executioner(False, Globals.mapping_buttons_options, screen, "white")
 
 
 class Menu(ButtonTransition, FadeTransition):
@@ -62,7 +62,10 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen)
+        test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432)
+        test.retrieve('name')
+        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
+                              selector=True, list_selector=test.lister)
 
 
 class Song(ButtonTransition, FadeTransition):
@@ -72,9 +75,6 @@ class Song(ButtonTransition, FadeTransition):
         FadeTransition.black_out(self)
         # song = SongChart()
         # song.play()
-        test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432)
-        test.retrieve()
-        print(f'{test.lister}namor')
         song_file.song(self.screen, "music3")
 
 

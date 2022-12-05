@@ -19,8 +19,8 @@ class Button:
         screen.blit(self.text, self.text_rect)
 
     def changeColorAndCheckForInput(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
-                                                                                          self.rect.bottom):
+        if position[0] in range(self.rect.left, self.rect.right) \
+                and position[1] in range(self.rect.top, self.rect.bottom):
             definitive_color = self.hovering_color
             input_return = True
         else:
@@ -29,3 +29,4 @@ class Button:
 
         self.text = self.font.render(self.text_input, True, definitive_color)
         return input_return
+

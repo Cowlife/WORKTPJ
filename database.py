@@ -16,9 +16,7 @@ class DataBaseModel:
         self.conn = None
         self.lister = []
 
-    def retrieve(self):
-        name_string = 'name'
-        attack_string = '%_Move%'
+    def retrieve(self, name_string):
         try:
             with psycopg2.connect(
                     host=self.hostname,
@@ -29,16 +27,15 @@ class DataBaseModel:
 
                 with self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                     cur.execute(f''' 
-                                SELECT {name_string} 
-                                FROM "PygameMove" 
-                                WHERE {name_string} 
-                                LIKE '{attack_string}' ''')
+                                SELECT {name_string}
+                                FROM "PygameMove" ''')
                     # cur.execute('SELECT width FROM "PygameMove"')
                     for record in cur.fetchall():
-                        self.lister.append(record['name'])
+                        self.lister.append(record[name_string])
         except Exception as error:
-            print(error)
+            print(f'{error}namor')
         finally:
             if self.conn is not None:
                 self.conn.close()
         return self.lister
+
