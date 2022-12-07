@@ -58,10 +58,12 @@ class HMenu:
                 for i in self.buttons:
                     if self.buttons[self.buttons.index(i)].changeColorAndCheckForInput(self.menu_mouse_pos):
                         result = mapping_globals[self.buttons.index(i)]
-                        print(result)
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
 
-    def struture_execution(self, mapping_globals):
+    def character_selector(self):
+        pass
+
+    def struture_execution(self, mapping_globals, list_selector):
         raise NotImplemented
 
 
@@ -71,10 +73,11 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals):
+    def struture_execution(self, mapping_globals, list_selector):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
         self.handle_input(mapping_globals)
+
         # to set-up the screen
-        pygame.display.flip()
+

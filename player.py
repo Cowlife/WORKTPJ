@@ -31,6 +31,7 @@ class EntityModel:
 class Entity(pygame.sprite.Sprite):
     def __init__(self, pos, entitymodel) -> None:
         super().__init__()
+        self.pos = pos
         self.entitymodel = entitymodel
         self.attack_animation = False
         self.attack_stance = False
@@ -45,7 +46,7 @@ class Entity(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos[0], pos[1]]
 
-    def move(self, speed):
+    def move_sprite(self, speed):
         self.current_sprite += speed
         if int(self.current_sprite) >= len(self.sprites):
             if not self.attack_stance:
@@ -79,18 +80,17 @@ class Entity(pygame.sprite.Sprite):
 class Slime(Entity):
     def __init__(self, pos, entitymodel) -> None:
         super().__init__(pos, entitymodel)
-        self.pos = pos
 
     def clone(self) -> Entity:
         return Slime(self.pos, self.entitymodel)
 
 
 class Sorceror(Entity):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, pos, entitymodel) -> None:
+        super().__init__(pos, entitymodel)
 
     def clone(self) -> Entity:
-        return Sorceror()
+        return Sorceror(self.pos, self.entitymodel)
 
 
 class Spawner:
@@ -110,6 +110,5 @@ def main():
 
 if __name__ == "__main__":
     screen = pygame.display.set_mode((1280, 720))
-    while True:
-        main()
+    main()
 

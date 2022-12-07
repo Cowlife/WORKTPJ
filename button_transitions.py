@@ -7,6 +7,7 @@ import song_file
 from scenes.menu import ScreenMenu
 
 from database import DataBaseModel
+from scenes.song_transition import SongExecutor
 
 
 class FadeTransition:
@@ -65,7 +66,22 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432)
         test.retrieve('name')
         self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              selector=True, list_selector=test.lister)
+                              list_selector=test.lister)
+
+
+class CharacterSelectButton(ButtonTransition, FadeTransition):
+    def execute(self, buttons, menu_mouse_pos, screen):
+        pass
+
+
+class Add(ButtonTransition, FadeTransition):
+    def execute(self, buttons, menu_mouse_pos, screen):
+        print("Addte")
+
+
+class Subtract(ButtonTransition, FadeTransition):
+    def execute(self, buttons, menu_mouse_pos, screen):
+        pass
 
 
 class Song(ButtonTransition, FadeTransition):
@@ -73,9 +89,8 @@ class Song(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        # song = SongChart()
-        # song.play()
-        song_file.song(self.screen, "music3")
+        song = SongExecutor(self.screen, "music3")
+        song.player_drawer()
 
 
 class Quit(ButtonTransition, FadeTransition):
@@ -159,15 +174,15 @@ class Globals:
 
     }
     mapping_buttons_character_select = {
-        0: Menu,
+        0: Play,
         1: Song,
         "x_pos": 340,
         "y_pos": 610,
         "title": "Choose your characters!",
         "font_size_title": 32,
         "rect_cd": (640, 50),
-        "image_inputs": ["Play", "Start"],
-        "text_inputs": ["BACK", "START"],
+        "image_inputs": ["Play", "Start", "Left", "Right"],
+        "text_inputs": ["BACK", "START", "<-", "->"],
         "color_base": "#2596be",
         "color_hovering": "Yellow",
         "font_size": 50,
@@ -175,5 +190,23 @@ class Globals:
         "separation": 600,
         "menu_bg": "assets/global_images/Background.png",
         "music": "assets/music/PlayHub.mp3"
+    }
 
+    mapping_buttons_character_select_button = {
+        0: Add,
+        1: Subtract,
+        "x_pos": 160,
+        "y_pos": 320,
+        "title": "",
+        "font_size_title": 0,
+        "rect_cd": (0, 0),
+        "image_inputs": ["Left", "Right"],
+        "text_inputs": ["<-", "->"],
+        "color_base": "#2596be",
+        "color_hovering": "Yellow",
+        "font_size": 25,
+        "horizontal": True,
+        "separation": 350,
+        "menu_bg": "assets/global_images/Background.png",
+        "music": "assets/music/PlayHub.mp3"
     }

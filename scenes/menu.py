@@ -1,6 +1,8 @@
+import pygame
 from pygame import image, mixer
 
 from scenes.menu_load import MainTransition
+
 
 class TransitoryMenu:
     def background_implementer(self, background_bool, mapping_globals, screen, color="black"):
@@ -9,7 +11,7 @@ class TransitoryMenu:
         else:
             screen.fill(color)
 
-    def menu_constructor(self, mapping_globals, screen):
+    def menu_constructor(self, mapping_globals, screen, list_selector=None):
         t_menu = MainTransition(mapping_globals["x_pos"],
                                 mapping_globals["y_pos"],
                                 mapping_globals["title"],
@@ -23,26 +25,20 @@ class TransitoryMenu:
                                 mapping_globals["horizontal"],
                                 mapping_globals["separation"],
                                 screen)
+        t_menu.struture_execution(mapping_globals, list_selector)
+        pygame.display.flip()
 
-        t_menu.struture_execution(mapping_globals)
-
-    def executioner(self, background_bool, mapping_globals, screen, color="black", selector=None, list_selector=None):
+    def executioner(self, background_bool, mapping_globals, screen,
+                    color="black", list_selector=None):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
-    def executioner(self, background_bool, mapping_globals, screen, color="black", selector=False, list_selector=None):
-        self.TypeChecker(list_selector)
+    def executioner(self, background_bool, mapping_globals, screen,
+                    color="black", list_selector=None):
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
+
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
-            self.menu_constructor(mapping_globals, screen)
-            if selector:
-                print(list_selector)
-
-
-    def TypeChecker(self, var):
-        if type(var) is list:
-            var = []
-        return var
+            self.menu_constructor(mapping_globals, screen, list_selector)
