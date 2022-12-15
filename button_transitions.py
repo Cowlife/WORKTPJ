@@ -189,7 +189,7 @@ class Globals:
         "horizontal": True,
         "separation": 600,
         "menu_bg": "assets/global_images/Background.png",
-        "music": "assets/music/PlayHub.mp3"
+        "music": "assets/music/characterselect.mp3"
     }
 
     mapping_buttons_character_select_button = {

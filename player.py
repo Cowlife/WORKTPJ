@@ -67,11 +67,15 @@ class Entity(pygame.sprite.Sprite):
 
         else:
             for x in range(self.entitymodel.x_y_start[0], self.entitymodel.width_height[0],
-                           int(self.frame_example)):  # [1344, 84]
+                           int(self.frame_example)):
                 #     In this case the other value of self.frames is used for starting position
                 self.sprites.append(
                     self.entitymodel.main_element.subsurface(x, self.entitymodel.x_y_start[1], int(self.frame_example),
                                                              self.entitymodel.width_height[1]))
+
+    def update(self) -> bool:
+        return self.move_sprite(0.5)
+        # return args(kwargs)
 
     def clone(self):
         return NotImplemented
@@ -111,4 +115,3 @@ def main():
 if __name__ == "__main__":
     screen = pygame.display.set_mode((1280, 720))
     main()
-
