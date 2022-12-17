@@ -9,6 +9,7 @@ import button_transitions
 from keys import keys
 from player import ImageEntityModel, EntityModel, Entity, Spawner, Slime, Sorceror
 from scenes.menu import ScreenMenu
+from scenes.parallax_storage import ImageryGroundExecution
 from scenes.states import FSM, Transition, Alive, Options, State
 
 
@@ -59,7 +60,8 @@ class SongNote:
 
     def progressing(self, screen):  # 0.1
         startTime = time.time()
-        progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final, curved=True)
+        progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final,
+                                  curved=True)
         # /10 seconds
         return progressBar
 
@@ -102,14 +104,6 @@ class SongNote:
             self.moving_sprites.add(self.player)
             self.attacking_sprites.add(self.player_attack)
 
-    def scene_transitor(self):
-        if self.counter == self.counter_final:
-            pygame.display.flip()
-            fade_in_upper = button_transitions.FadeTransition(self.screen)
-            fade_in_upper.black_out()
-            st_menu = ScreenMenu()
-            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay, self.screen)
-
     def key_and_loop_handler(self):
         k = pygame.key.get_pressed()
         for key in keys:
@@ -121,77 +115,42 @@ class SongNote:
                 key.handled = True
             # now when we press our keys they will change color
 
-    def chart_heart_core(self):
+    def scene_transitor(self, counter):
+        if counter == self.counter_final:
+            pygame.display.flip()
+            fade_in_upper = button_transitions.FadeTransition(self.screen)
+            fade_in_upper.black_out()
+            st_menu = ScreenMenu()
+            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay, self.screen)
 
+    def UnityExecutor(self):
+        raise NotImplemented
+
+
+class SongExecutor(SongNote):
+    def __init__(self, screen, song_file):
+        super().__init__(screen, song_file)
+
+    def UnityExecutor(self):
         self.entity_loader()
 
         spawner = Spawner()
 
-
         # Creating the sprites and groups
         # now we will create a map by making a txt file
-
-        font = pygame.font.Font("assets/fonts/font.ttf", 100)
-        text = font.render(str(self.counter), True, (222, 109, 11))
-
-        timer_event = pygame.USEREVENT + 1
-        pygame.time.set_timer(timer_event, 1000)
-
         self.progressing(self.screen)
 
-        ground_image = pygame.image.load("scenario/Jungle/ground.png").convert_alpha()
-        ground_image = pygame.transform.scale(ground_image, (1280, 256))
-        ground_width = ground_image.get_width()
-        ground_height = ground_image.get_height()
-
-        # define game variables
-
-        bg_images = []
-        for i in range(1, 6):
-            bg_image = pygame.image.load(f"scenario/Jungle/plx-{i}.png").convert_alpha()
-            bg_image = pygame.transform.scale(bg_image, (844, 475))
-            bg_images.append(bg_image)
-        bg_width = bg_images[0].get_width()
-
-        scroll = 0
+        imagery = ImageryGroundExecution(0, "Jungle", 5, [(1280, 256), (844, 475)], self.screen, 0)
 
         mixer.init()
         map_rect = self.load(self.song_file, spawner)
 
         list_models = self.moving_sprites.sprites()
         list_attacks = self.attacking_sprites.sprites()
-        index_iterator = 0
         while True:
             self.clock.tick(60)  # limit movement screen
 
-            for event in pygame.event.get():
-
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    quit()
-                if event.type == timer_event:
-                    self.counter += 1
-                    text = font.render(str(self.counter), True, (222, 109, 11))
-
-            self.screen.fill((0, 0, 0))
-
-            # draw world
-            for x in range(150):
-                speed = 1
-                for i in bg_images:
-                    # printing ground tile
-                    self.screen.blit(ground_image,
-                                     ((x * ground_width) - scroll * 2.5, 720 - ground_height))  # screen height
-                    # printing background
-                    self.screen.blit(i, ((x * bg_width) - scroll * speed, 0))
-                    speed += 0.8
-
-            # scroll background
-            scroll += 2
-
-            pygame_widgets.update(event)
-            text_rect = text.get_rect()
-            self.screen.blit(text, text_rect)
+            imagery.loop_executor()
 
             self.moving_sprites.update()
             self.attacking_sprites.update()
@@ -208,9 +167,6 @@ class SongNote:
                 # pygame.draw.rect(self.screen, (200, 0, 0), rect)
                 self.screen.blit(test.image, rect)
                 test.update()
-                index_iterator += 1
-                if index_iterator == len(map_rect[1]):
-                    index_iterator = 0
                 rect.x -= 5
                 for key in keys:
                     if key.rect.colliderect(rect) and key.handled:  # not for actually skill
@@ -230,20 +186,9 @@ class SongNote:
 
             self.moving_sprites.draw(self.screen)
 
-            self.scene_transitor()
+            self.scene_transitor(imagery.counter)
 
             # now we will loop through the keys and handle the events
             self.key_and_loop_handler()
 
             pygame.display.flip()
-
-    def UnityExecutor(self):
-        raise NotImplemented
-
-
-class SongExecutor(SongNote):
-    def __init__(self, screen, song_file):
-        super().__init__(screen, song_file)
-
-    def UnityExecutor(self):
-        self.chart_heart_core()
