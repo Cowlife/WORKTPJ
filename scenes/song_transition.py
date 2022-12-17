@@ -7,8 +7,9 @@ from pygame_widgets.progressbar import ProgressBar
 
 import button_transitions
 from keys import keys
-from player import ImageEntityModel, EntityModel, Entity
+from player import ImageEntityModel, EntityModel, Entity, Spawner, Slime, Sorceror
 from scenes.menu import ScreenMenu
+from scenes.states import FSM, Transition, Alive, Options, State
 
 
 class SongNote:
@@ -26,7 +27,7 @@ class SongNote:
         start_pos_attacks = [(26, 89), (0, 70), (0, 79)]
         moving_sprites = sprite.Group()
         attacking_sprites = sprite.Group()
-        counter_final = 100
+        counter_final = 6
 
         self.clock = clock
         self.screen = screen
@@ -44,25 +45,49 @@ class SongNote:
         self.attacking_sprites = attacking_sprites
         self.counter_final = counter_final
 
+        self._menu = Alive()
+        self._options = Options()
+        self._dead = State("Dead")
+        self.states = [self._menu, self._options, self._dead]
+        self.transitions = {
+            "rest": Transition(self._menu, self._options),
+            "engage": Transition(self._options, self._menu),
+            "harakiri": Transition(self._options, self._dead)
+        }
+
+        self.fsm = FSM(self.states, self.transitions)
+
     def progressing(self, screen):  # 0.1
         startTime = time.time()
-        progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final,
-                                  curved=True)
+        progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final, curved=True)
         # /10 seconds
         return progressBar
 
-    def load(self, map):
-        rects = []
+    def load(self, map, spawner):
+        rects, entity_list = [], []
         mixer.music.load("musics/" + map + ".mp3")
         mixer.music.play()
         with open(f"charts/{map}.txt", 'r') as f:
             data = f.readlines()
+        enemyImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_enemy/slime.png'), True)
+        enemyEntityModel = EntityModel(enemyImageEntityModel, (2, 1), (90, 45))
+        self.enemy_attack = Slime((400, 400), enemyEntityModel)
+        enemyImageEntityModel2 = ImageEntityModel(True, image.load('assets/sprites_enemy/dancing.png'), True)
+        enemyEntityModel2 = EntityModel(enemyImageEntityModel2, (10, 8), (880, 1280))
+        self.enemy_attack2 = Sorceror((400, 400), enemyEntityModel2)
         for y in range(len(data)):
             for x in range(len(data[y])):
                 if data[y][x] == '0':
                     key_pressers = pygame.Rect((x * 50) + 650, (y * 100) + 400, 25, 25)
                     rects.append(key_pressers)
-        return rects
+                    spawner_instance = spawner.spawn_Entity(self.enemy_attack)
+                    entity_list.append(spawner_instance)
+                elif data[y][x] == '1':
+                    key_pressers = pygame.Rect((x * 50) + 650, (y * 100) + 400, 25, 25)
+                    rects.append(key_pressers)
+                    spawner_instance = spawner.spawn_Entity(self.enemy_attack2)
+                    entity_list.append(spawner_instance)
+        return rects, entity_list
 
     def entity_loader(self):
         for i in self.image_loader:
@@ -77,13 +102,31 @@ class SongNote:
             self.moving_sprites.add(self.player)
             self.attacking_sprites.add(self.player_attack)
 
-    def player_drawer(self):
+    def scene_transitor(self):
+        if self.counter == self.counter_final:
+            pygame.display.flip()
+            fade_in_upper = button_transitions.FadeTransition(self.screen)
+            fade_in_upper.black_out()
+            st_menu = ScreenMenu()
+            st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay, self.screen)
+
+    def key_and_loop_handler(self):
+        k = pygame.key.get_pressed()
+        for key in keys:
+            if k[key.key]:
+                pygame.draw.rect(self.screen, key.color1, key.rect)
+                key.handled = False
+            if not k[key.key]:
+                pygame.draw.rect(self.screen, key.color2, key.rect)
+                key.handled = True
+            # now when we press our keys they will change color
+
+    def chart_heart_core(self):
 
         self.entity_loader()
 
-        enemyImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_enemy/slime.png'), True)
-        enemyEntityModel = EntityModel(enemyImageEntityModel, (2, 1), (90, 45))
-        enemy_attack = Entity((400, 400), enemyEntityModel)
+        spawner = Spawner()
+
 
         # Creating the sprites and groups
         # now we will create a map by making a txt file
@@ -96,27 +139,28 @@ class SongNote:
 
         self.progressing(self.screen)
 
-        ground_image = pygame.image.load("scenario/ground.png").convert_alpha()
+        ground_image = pygame.image.load("scenario/Jungle/ground.png").convert_alpha()
         ground_image = pygame.transform.scale(ground_image, (1280, 256))
         ground_width = ground_image.get_width()
         ground_height = ground_image.get_height()
 
         # define game variables
-        scroll = 0
 
         bg_images = []
         for i in range(1, 6):
-            bg_image = pygame.image.load(f"scenario/plx-{i}.png").convert_alpha()
+            bg_image = pygame.image.load(f"scenario/Jungle/plx-{i}.png").convert_alpha()
             bg_image = pygame.transform.scale(bg_image, (844, 475))
             bg_images.append(bg_image)
         bg_width = bg_images[0].get_width()
 
+        scroll = 0
+
         mixer.init()
-        map_rect = self.load(self.song_file)
+        map_rect = self.load(self.song_file, spawner)
 
         list_models = self.moving_sprites.sprites()
         list_attacks = self.attacking_sprites.sprites()
-
+        index_iterator = 0
         while True:
             self.clock.tick(60)  # limit movement screen
 
@@ -152,72 +196,43 @@ class SongNote:
             self.moving_sprites.update()
             self.attacking_sprites.update()
 
-            if list_attacks[0].attack_animation:
-                self.moving_sprites.remove(list_attacks[-3])
-                self.moving_sprites.add(list_models[-3])
-                list_attacks[-3].current_sprite = 0
-                list_attacks[-3].attack_stance = not list_attacks[-3].attack_stance
-                list_attacks[-3].attack_animation = not list_attacks[-3].attack_animation
-            if list_attacks[1].attack_animation:
-                self.moving_sprites.remove(list_attacks[-2])
-                self.moving_sprites.add(list_models[-2])
-                list_attacks[-2].current_sprite = 0
-                list_attacks[-2].attack_stance = not list_attacks[-2].attack_stance
-                list_attacks[-2].attack_animation = not list_attacks[-2].attack_animation
-            if list_attacks[-1].attack_animation:
-                self.moving_sprites.remove(list_attacks[-1])
-                self.moving_sprites.add(list_models[-1])
-                list_attacks[-1].current_sprite = 0
-                list_attacks[-1].attack_stance = not list_attacks[-1].attack_stance
-                list_attacks[-1].attack_animation = not list_attacks[-1].attack_animation
+            for i in range(-3, 0):
+                if list_attacks[i].attack_animation:
+                    self.moving_sprites.remove(list_attacks[i])
+                    self.moving_sprites.add(list_models[i])
+                    list_attacks[i].current_sprite = 0
+                    list_attacks[i].attack_stance = not list_attacks[i].attack_stance
+                    list_attacks[i].attack_animation = not list_attacks[i].attack_animation
 
-            for rect in map_rect:
-                pygame.draw.rect(self.screen, (200, 0, 0), rect)
-                self.screen.blit(enemy_attack.image, rect)
-                enemy_attack.move_sprite(0.5)
+            for rect in map_rect[0]:
+                # pygame.draw.rect(self.screen, (200, 0, 0), rect)
+                self.screen.blit(map_rect[1][index_iterator].image, rect)
+                map_rect[1][index_iterator].update()
+                index_iterator += 1
+                if index_iterator == len(map_rect[1]):
+                    index_iterator = 0
                 rect.x -= 5
                 for key in keys:
                     if key.rect.colliderect(rect) and key.handled:  # not for actually skill
-                        map_rect.remove(rect)
+                        map_rect[0].remove(rect)
+                        # Transition(self._menu, self._options)
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                         key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
-                        if key.key == key_list[0]:
-                            self.moving_sprites.remove(list_models[-3])
-                            self.moving_sprites.add(list_attacks[-3])
-                            list_attacks[-3].current_sprite = 0
-                            list_attacks[-3].attack_stance = True
-                        if key.key == key_list[1]:
-                            self.moving_sprites.remove(list_models[-2])
-                            self.moving_sprites.add(list_attacks[-2])
-                            list_attacks[-2].current_sprite = 0
-                            list_attacks[-2].attack_stance = True
-                            print(list_attacks[1].attack_stance)
-                        if key.key == key_list[-1]:
-                            self.moving_sprites.remove(list_models[-1])
-                            self.moving_sprites.add(list_attacks[-1])
-                            list_attacks[-1].current_sprite = 0
-                            list_attacks[-1].attack_stance = True
-
+                        for i in range(-3, 0):
+                            if key.key == key_list[i]:
+                                self.moving_sprites.remove(list_models[i])
+                                self.moving_sprites.add(list_attacks[i])
+                                list_attacks[i].current_sprite = 0
+                                list_attacks[i].attack_stance = True
                         pygame.mixer.Sound.play(sound_effecting)
                         key.handled = True
 
             self.moving_sprites.draw(self.screen)
-            if self.counter == self.counter_final:
-                pygame.display.flip()
-                # global_functions.fade_in()
-                st_menu = ScreenMenu()
-                st_menu.executioner(True, button_transitions.Globals.mapping_buttons_overlay, self.screen)
+
+            self.scene_transitor()
 
             # now we will loop through the keys and handle the events
-            k = pygame.key.get_pressed()
-            for key in keys:
-                if k[key.key]:
-                    pygame.draw.rect(self.screen, key.color1, key.rect)
-                    key.handled = False
-                if not k[key.key]:
-                    pygame.draw.rect(self.screen, key.color2, key.rect)
-                    key.handled = True
-            # now when we press our keys they will change color
+            self.key_and_loop_handler()
 
             pygame.display.flip()
 
@@ -230,4 +245,4 @@ class SongExecutor(SongNote):
         super().__init__(screen, song_file)
 
     def UnityExecutor(self):
-        self.player_drawer()
+        self.chart_heart_core()

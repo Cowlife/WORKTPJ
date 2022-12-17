@@ -27,7 +27,7 @@ class Options(State):
         return super().update(object)
 
 
-class Menu(State):
+class Alive(State):
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
 
@@ -59,7 +59,7 @@ class FSM:
 
 
 if __name__ == "__main__":
-    menu = Menu()
+    menu = Alive()
     options = Options()
     dead = State("Dead")
 

@@ -108,10 +108,12 @@ def main():
     slime = Slime((400, 400), enemyEntityModel)
     spawner = Spawner()
 
-    spawner.spawn_Entity(slime)
-    print(spawner.spawn_Entity(slime))
+    for i in range(10):
+        spawner.spawn_Entity(slime)
+        print(spawner.spawn_Entity(slime))
 
 
 if __name__ == "__main__":
     screen = pygame.display.set_mode((1280, 720))
     main()
+

@@ -33,7 +33,8 @@ class HMenu:
         for x in self.text_inputs:
             for i in self.image_inputs:
                 if self.image_inputs.index(i) == self.text_inputs.index(x):
-                    receiver = pygame.image.load(f"assets/global_images/{self.image_inputs[self.image_inputs.index(i)]}.png")
+                    receiver = pygame.image.load(
+                        f"assets/global_images/{self.image_inputs[self.image_inputs.index(i)]}.png")
                     outlier = Button(image=receiver,
                                      pos=(self.x_pos, self.y_pos),
                                      text_input=x, font=self.font, base_color=self.color_base,
@@ -60,10 +61,7 @@ class HMenu:
                         result = mapping_globals[self.buttons.index(i)]
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
 
-    def character_selector(self):
-        pass
-
-    def struture_execution(self, mapping_globals, list_selector):
+    def struture_execution(self, mapping_globals, list_selector, dropdown_menu):
         raise NotImplemented
 
 
@@ -73,11 +71,10 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals, list_selector):
+    def struture_execution(self, mapping_globals, list_selector, dropdown_menu):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
         self.handle_input(mapping_globals)
 
         # to set-up the screen
-

@@ -11,7 +11,7 @@ class TransitoryMenu:
         else:
             screen.fill(color)
 
-    def menu_constructor(self, mapping_globals, screen, list_selector=None):
+    def menu_constructor(self, mapping_globals, screen, list_selector=None, dropdown_menu=None):
         t_menu = MainTransition(mapping_globals["x_pos"],
                                 mapping_globals["y_pos"],
                                 mapping_globals["title"],
@@ -25,20 +25,19 @@ class TransitoryMenu:
                                 mapping_globals["horizontal"],
                                 mapping_globals["separation"],
                                 screen)
-        t_menu.struture_execution(mapping_globals, list_selector)
+        t_menu.struture_execution(mapping_globals, list_selector, dropdown_menu)
         pygame.display.flip()
 
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None):
+                    color="black", list_selector=None, dropdowner=None):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None):
+                    color="black", list_selector=None, dropdowner=None):
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
-
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
-            self.menu_constructor(mapping_globals, screen, list_selector)
+            self.menu_constructor(mapping_globals, screen, list_selector, dropdowner)
