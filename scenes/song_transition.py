@@ -204,10 +204,10 @@ class SongNote:
                     list_attacks[i].attack_stance = not list_attacks[i].attack_stance
                     list_attacks[i].attack_animation = not list_attacks[i].attack_animation
 
-            for rect in map_rect[0]:
+            for rect, test in zip(map_rect[0], map_rect[1]):
                 # pygame.draw.rect(self.screen, (200, 0, 0), rect)
-                self.screen.blit(map_rect[1][index_iterator].image, rect)
-                map_rect[1][index_iterator].update()
+                self.screen.blit(test.image, rect)
+                test.update()
                 index_iterator += 1
                 if index_iterator == len(map_rect[1]):
                     index_iterator = 0
@@ -215,6 +215,7 @@ class SongNote:
                 for key in keys:
                     if key.rect.colliderect(rect) and key.handled:  # not for actually skill
                         map_rect[0].remove(rect)
+                        map_rect[1].remove(test)
                         # Transition(self._menu, self._options)
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                         key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
