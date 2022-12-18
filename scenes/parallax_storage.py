@@ -3,7 +3,7 @@ import pygame_widgets
 from pygame.event import Event
 
 
-class Imagery:
+class ImageryComponent:
     def __init__(self, counter, text_image, layers, images_sizes, screen, scroll):
         self.text_image = text_image
         self.layers = layers
@@ -49,7 +49,7 @@ class Imagery:
         raise NotImplemented
 
 
-class ImageryGroundExecution(Imagery):
+class ImageryGroundExecution(ImageryComponent):
     def __init__(self, counter, text_image, layers, images_sizes, screen, scroll):
         super().__init__(counter, text_image, layers, images_sizes, screen, scroll)
         self.ground_image = self.image_loader("ground", 0)

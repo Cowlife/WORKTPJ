@@ -31,6 +31,7 @@ class EntityModel:
 class Entity(pygame.sprite.Sprite):
     def __init__(self, pos, entitymodel) -> None:
         super().__init__()
+        # animation variables
         self.pos = pos
         self.entitymodel = entitymodel
         self.attack_animation = False
@@ -45,6 +46,13 @@ class Entity(pygame.sprite.Sprite):
         self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos[0], pos[1]]
+        # health variables
+        self.max_health = 1000
+        self.health_bar_length = 400
+        self.health_ratio = self.max_health / self.health_bar_length
+        self.current_health = 200
+        self.target_health = 500
+        self.health_change_speed = 5
 
     def move_sprite(self, speed):
         self.current_sprite += speed
@@ -77,6 +85,42 @@ class Entity(pygame.sprite.Sprite):
         return self.move_sprite(0.5)
         # return args(kwargs)
 
+    def get_damage(self, amount):
+        if self.target_health > 0:
+            self.target_health -= amount
+        if self.target_health < 0:
+            self.target_health = 0
+
+    def get_health(self, amount):
+        if self.target_health < self.max_health:
+            self.target_health += amount
+        if self.target_health > self.max_health:
+            self.target_health = self.max_health
+
+    def update_health(self, screen):
+        transition_width = 0
+        transition_color = (255, 0, 0)
+        self.font = pygame.font.Font("assets/fonts/font.ttf", 50)
+        self.text = self.font.render("Health", True, (222, 109, 11))
+        screen.blit(self.text, (800, 20))
+        if self.current_health < self.target_health:
+            self.current_health += self.health_change_speed
+            transition_width = int((self.target_health - self.current_health) / self.health_ratio)
+            transition_color = (0, 255, 0)
+
+        if self.current_health > self.target_health:
+            self.current_health -= self.health_change_speed
+            transition_width = int((self.target_health - self.current_health) / self.health_ratio)
+            transition_color = (255, 255, 0)
+
+        health_bar_width = int(self.current_health / self.health_ratio)
+        health_bar = pygame.Rect(800, 100, health_bar_width, 25)
+        transition_bar = pygame.Rect(health_bar.right, 100, transition_width, 25)
+
+        pygame.draw.rect(screen, (255, 0, 0), health_bar)
+        pygame.draw.rect(screen, transition_color, transition_bar)
+        pygame.draw.rect(screen, (255, 255, 255), (800, 100, self.health_bar_length, 25), 4)
+
     def clone(self):
         return NotImplemented
 
@@ -100,20 +144,3 @@ class Sorceror(Entity):
 class Spawner:
     def spawn_Entity(self, prototype):
         return prototype.clone()
-
-
-def main():
-    enemyImageEntityModel = ImageEntityModel(False, image.load('assets/sprites_enemy/slime.png'), True)
-    enemyEntityModel = EntityModel(enemyImageEntityModel, (2, 1), (90, 45))
-    slime = Slime((400, 400), enemyEntityModel)
-    spawner = Spawner()
-
-    for i in range(10):
-        spawner.spawn_Entity(slime)
-        print(spawner.spawn_Entity(slime))
-
-
-if __name__ == "__main__":
-    screen = pygame.display.set_mode((1280, 720))
-    main()
-

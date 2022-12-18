@@ -13,7 +13,7 @@ from scenes.parallax_storage import ImageryGroundExecution
 from scenes.states import FSM, Transition, Alive, Options, State
 
 
-class SongNote:
+class SongComponent:
     def __init__(self, screen, song_file):
 
         clock = Clock()
@@ -57,13 +57,6 @@ class SongNote:
         }
 
         self.fsm = FSM(self.states, self.transitions)
-
-    def progressing(self, screen):  # 0.1
-        startTime = time.time()
-        progressBar = ProgressBar(screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final,
-                                  curved=True)
-        # /10 seconds
-        return progressBar
 
     def load(self, map, spawner):
         rects, entity_list = [], []
@@ -127,7 +120,7 @@ class SongNote:
         raise NotImplemented
 
 
-class SongExecutor(SongNote):
+class SongExecutor(SongComponent):
     def __init__(self, screen, song_file):
         super().__init__(screen, song_file)
 
@@ -138,7 +131,9 @@ class SongExecutor(SongNote):
 
         # Creating the sprites and groups
         # now we will create a map by making a txt file
-        self.progressing(self.screen)
+        startTime = time.time()
+        progressBar = ProgressBar(self.screen, 100, 100, 500, 40, lambda: (time.time() - startTime) / self.counter_final,
+                                  curved=True)
 
         imagery = ImageryGroundExecution(0, "Jungle", 5, [(1280, 256), (844, 475)], self.screen, 0)
 
@@ -154,9 +149,15 @@ class SongExecutor(SongNote):
 
             self.moving_sprites.update()
             self.attacking_sprites.update()
+            self.player.update_health(self.screen)
+
+
+
+            #self.player.get_damage(200)
 
             for i in range(-3, 0):
                 if list_attacks[i].attack_animation:
+                    self.player.get_health(200)
                     self.moving_sprites.remove(list_attacks[i])
                     self.moving_sprites.add(list_models[i])
                     list_attacks[i].current_sprite = 0
