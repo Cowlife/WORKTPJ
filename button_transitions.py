@@ -197,7 +197,7 @@ class Globals:
         "title": "You took too much damage!",
         "font_size_title": 32,
         "rect_cd": (640, 50),
-        "image_inputs": ["Play", "Start", "Quit", "Options"],
+        "image_inputs": ["Play", "Start", "Quit", "Options"],  # ["Play", "Options", "Options", "Options"]
         "text_inputs": ["RESTART", "RETURN TO SONG SELECT", "RETURN TO CHARACTER SELECT", "RETURN TO MENU"],
         "color_base": "#2596be",
         "color_hovering": "Yellow",

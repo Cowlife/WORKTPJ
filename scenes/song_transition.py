@@ -19,29 +19,45 @@ class SongComponent:
         clock = Clock()
         counter = 0
         image_loader = ['Bowser', 'Mario', 'Luigi']
-        frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
-        width_model = [(1344, 70), (1008, 58), (1068, 75)]
+
         pos_loader = [400, 500, 600]
+
+        frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
         frames_in_x_y_attack = [(9, 1), (4, 1), (4, 1)]
+        frames_in_x_y_hurt = [(9, 1), (3, 1), (3, 1)]
+
+        width_model = [(1344, 70), (1008, 58), (1068, 75)]
         width_attacks = [(999, 60), (448, 75), (444, 75)]
+        width_hurt = [(675, 62), (260, 44), (285, 59)]
+
         start_pos_model = [(0, 0), (0, 0), (0, 0)]
         start_pos_attacks = [(26, 89), (0, 70), (0, 79)]
+        start_pos_hurt = [(0, 165), (0, 174), (0, 180)]
+
         counter_final = 10
 
         frames_in_x_y_enemy = [(2, 1), (10, 8)]
         width_enemy = [(90, 45), (880, 1280)]
+
         self.clock = clock
         self.screen = screen
         self.song_file = song_file
         self.counter = counter
         self.image_loader = image_loader
+
         self.frames_in_x_y_model = frames_in_x_y_model
-        self.width_model = width_model
-        self.pos_loader = pos_loader
         self.frames_in_x_y_attack = frames_in_x_y_attack
+        self.frames_in_x_y_hurt = frames_in_x_y_hurt
+
+        self.width_model = width_model
         self.width_attacks = width_attacks
+        self.width_hurt = width_hurt
+
+        self.pos_loader = pos_loader
+
         self.start_pos_model = start_pos_model
         self.start_pos_attacks = start_pos_attacks
+        self.start_pos_hurt = start_pos_hurt
 
         self.counter_final = counter_final
 
@@ -51,6 +67,7 @@ class SongComponent:
         self.attacking_sprites = sprite.Group()
         self.hurting_sprites = sprite.Group()
         self.enemy_loader = ['slime', 'dancing']
+        self.health_enemies = [0, 300]
         self.entire = [False, True]
         self.flipper = [True, True]
         self.enemy_sprites = sprite.Group()
@@ -92,21 +109,27 @@ class SongComponent:
             ind = self.image_loader.index(i)
             personImageEntityModel = ImageEntityModel(False, image.load(f'assets/sprites_player/{i}.png'))
             personEntityModel = EntityModel(personImageEntityModel, self.frames_in_x_y_model[ind],
-                                            self.width_model[ind], self.start_pos_model[ind])
+                                            self.width_model[ind], self.start_pos_model[ind], max_health=1000)
             self.player = Entity((50, self.pos_loader[ind]), personEntityModel)
             personEntityModelAttack = EntityModel(personImageEntityModel, self.frames_in_x_y_attack[ind],
-                                                  self.width_attacks[ind], self.start_pos_attacks[ind])
+                                                  self.width_attacks[ind], self.start_pos_attacks[ind], max_health=1000)
             self.player_attack = Entity((50, self.pos_loader[ind]), personEntityModelAttack)
+            personEntityModelHurt = EntityModel(personImageEntityModel, self.frames_in_x_y_hurt[ind],
+                                                  self.width_hurt[ind], self.start_pos_hurt[ind], max_health=1000)
+            self.player_hurt = Entity((50, self.pos_loader[ind]), personEntityModelHurt)
             self.moving_sprites.add(self.player)
             self.attacking_sprites.add(self.player_attack)
+            self.hurting_sprites.add(self.player_hurt)
         for z in self.enemy_loader:
             ind = self.enemy_loader.index(z)
-            enemyImageEntityModel = ImageEntityModel(self.entire[ind], image.load(f'assets/sprites_enemy/{z}.png'), self.flipper[ind])
-            enemyEntityModel = EntityModel(enemyImageEntityModel, self.frames_in_x_y_enemy[ind], self.width_enemy[ind])
+            enemyImageEntityModel = ImageEntityModel(self.entire[ind], image.load(f'assets/sprites_enemy/{z}.png'),
+                                                     self.flipper[ind])
+            enemyEntityModel = EntityModel(enemyImageEntityModel, self.frames_in_x_y_enemy[ind], self.width_enemy[ind],
+                                           max_health=self.health_enemies[ind])
             if z == 'slime':
                 self.enemy_attack = Slime((0, 0), enemyEntityModel)
             elif z == 'dancing':
-                self.enemy_attack = Sorceror((0, 0), enemyEntityModel)
+                self.enemy_attack = Sorceror((0, 0), enemyEntityModel, enemyEntityModel.current_health)
             self.enemy_sprites.add(self.enemy_attack)
 
     def key_and_loop_handler(self, keys, keys_damage):
@@ -159,6 +182,8 @@ class SongExecutor(SongComponent):
 
         list_models = self.moving_sprites.sprites()
         list_attacks = self.attacking_sprites.sprites()
+        list_hurts = self.hurting_sprites.sprites()
+
         while True:
             self.clock.tick(60)  # limit movement screen
 
@@ -178,16 +203,29 @@ class SongExecutor(SongComponent):
                     list_attacks[i].current_sprite = 0
                     list_attacks[i].attack_stance = not list_attacks[i].attack_stance
                     list_attacks[i].attack_animation = not list_attacks[i].attack_animation
+                if list_hurts[i].attack_animation:
+                    self.moving_sprites.remove(list_hurts[i])
+                    self.moving_sprites.add(list_models[i])
+                    list_hurts[i].current_sprite = 0
+                    list_hurts[i].attack_stance = not list_hurts[i].attack_stance
+                    list_hurts[i].attack_animation = not list_hurts[i].attack_animation
 
             for rect, enemy in zip(map_rect[0], map_rect[1]):
-                # pygame.draw.rect(self.screen, (200, 0, 0), rect)
+                pygame.draw.rect(self.screen, (200, 0, 0), rect)
                 self.screen.blit(enemy.image, rect)
+                enemy.text_printer(25, f"{int(enemy.target_health / 200) + 1}", (222, 109, 11), rect, self.screen)
+                # counters to stronger enemies
                 enemy.update()
                 rect.x -= 5
                 for key in keys:
                     if key.rect.colliderect(rect) and not key.handled:  # not for actually skill
-                        map_rect[0].remove(rect)
-                        map_rect[1].remove(enemy)
+                        enemy.get_damage(200)
+                        if enemy.target_health > 0:
+                            rect.x += 100
+                        else:
+                            map_rect[0].remove(rect)
+                            map_rect[1].remove(enemy)
+
                         # Transition(self._menu, self._options)
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
                         key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
@@ -205,6 +243,13 @@ class SongExecutor(SongComponent):
                         map_rect[1].remove(enemy)
                         self.player.get_damage(200)
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/damage sound effect.wav")
+                        key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
+                        for i in range(-3, 0):
+                            if key.key == key_list[i]:
+                                self.moving_sprites.remove(list_models[i])
+                                self.moving_sprites.add(list_hurts[i])
+                                list_hurts[i].current_sprite = 0
+                                list_hurts[i].attack_stance = True
                         pygame.mixer.Sound.play(sound_effecting)
 
             self.moving_sprites.draw(self.screen)

@@ -20,7 +20,7 @@ class ImageEntityModel:
 
 
 class EntityModel:
-    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=1000):
+    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=0):
         self.x_y_start = x_y_start
         self.frames_in_x_and_y = frames_in_x_and_y
         self.width_height = width_height
@@ -56,7 +56,7 @@ class Entity(pygame.sprite.Sprite):
         self.current_health = entitymodel.current_health
         self.target_health = entitymodel.target_health
         self.health_ratio = self.max_health / self.health_bar_length
-        self.health_change_speed = 10
+        self.health_change_speed = 20
 
     def move_sprite(self, speed):
         self.current_sprite += speed
@@ -107,11 +107,14 @@ class Entity(pygame.sprite.Sprite):
         transition_color_changer = transition_color
         return transition_width, transition_color_changer
 
+    def text_printer(self, size, _text, color, pos, screen):
+        self.font = pygame.font.Font("assets/fonts/font.ttf", size)
+        self.text = self.font.render(_text, True, color)
+        screen.blit(self.text, pos)
+
     def update_health(self, screen):
         result = [0, 0]
-        self.font = pygame.font.Font("assets/fonts/font.ttf", 50)
-        self.text = self.font.render("Health", True, (222, 109, 11))
-        screen.blit(self.text, (800, 20))
+        self.text_printer(50, "Health", (222, 109, 11), (800, 20), screen)
         if self.current_health < self.target_health:
             result = self.health_change_function(1, (0, 255, 0))
 
@@ -126,9 +129,7 @@ class Entity(pygame.sprite.Sprite):
         pygame.draw.rect(screen, result[1], transition_bar)
         pygame.draw.rect(screen, (255, 255, 255), (800, 100, self.health_bar_length, 25), 4)
 
-        self.font = pygame.font.Font("assets/fonts/font.ttf", 25)
-        self.text = self.font.render(f"{self.current_health}/{self.max_health}", True, (44, 36, 199))
-        screen.blit(self.text, (900, 100))
+        self.text_printer(25, f"{self.current_health}/{self.max_health}", (44, 36, 199), (900, 100), screen)
 
     def clone(self):
         return NotImplemented
@@ -138,16 +139,18 @@ class Slime(Entity):
     def __init__(self, pos, entitymodel) -> None:
         super().__init__(pos, entitymodel)
 
+
     def clone(self) -> Entity:
         return Slime(self.pos, self.entitymodel)
 
 
 class Sorceror(Entity):
-    def __init__(self, pos, entitymodel) -> None:
+    def __init__(self, pos, entitymodel, health) -> None:
         super().__init__(pos, entitymodel)
+        self.health = health
 
     def clone(self) -> Entity:
-        return Sorceror(self.pos, self.entitymodel)
+        return Sorceror(self.pos, self.entitymodel, self.health)
 
 
 class Spawner:
