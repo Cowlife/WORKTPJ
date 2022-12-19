@@ -20,3 +20,10 @@ keys = [
     Key(150, 600, (0, 0, 255), (0, 0, 220), pygame.K_d),
     # crystal frames
 ]
+
+keys_damage = [
+    Key(50, 400, (255, 0, 0), (220, 0, 0), pygame.K_a),
+    Key(50, 500, (0, 255, 0), (0, 220, 0), pygame.K_s),
+    Key(50, 600, (0, 0, 255), (0, 0, 220), pygame.K_d),
+    # crystal frames
+]

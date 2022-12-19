@@ -20,12 +20,16 @@ class ImageEntityModel:
 
 
 class EntityModel:
-    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0)):
+    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=1000):
         self.x_y_start = x_y_start
         self.frames_in_x_and_y = frames_in_x_and_y
         self.width_height = width_height
         self.main_element = imageentitymodel.get_main_element()
         self.entire = imageentitymodel.get_entire()
+        self.max_health = max_health
+        self.health_bar_length = 400
+        self.current_health = max_health  # 200 for testing
+        self.target_health = max_health
 
 
 class Entity(pygame.sprite.Sprite):
@@ -47,12 +51,12 @@ class Entity(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = [pos[0], pos[1]]
         # health variables
-        self.max_health = 1000
-        self.health_bar_length = 400
+        self.max_health = entitymodel.max_health
+        self.health_bar_length = entitymodel.health_bar_length
+        self.current_health = entitymodel.current_health
+        self.target_health = entitymodel.target_health
         self.health_ratio = self.max_health / self.health_bar_length
-        self.current_health = 200
-        self.target_health = 500
-        self.health_change_speed = 5
+        self.health_change_speed = 10
 
     def move_sprite(self, speed):
         self.current_sprite += speed
@@ -97,29 +101,34 @@ class Entity(pygame.sprite.Sprite):
         if self.target_health > self.max_health:
             self.target_health = self.max_health
 
+    def health_change_function(self, inc_dec, transition_color):
+        self.current_health += self.health_change_speed * inc_dec
+        transition_width = int((self.target_health - self.current_health) / self.health_ratio)
+        transition_color_changer = transition_color
+        return transition_width, transition_color_changer
+
     def update_health(self, screen):
-        transition_width = 0
-        transition_color = (255, 0, 0)
+        result = [0, 0]
         self.font = pygame.font.Font("assets/fonts/font.ttf", 50)
         self.text = self.font.render("Health", True, (222, 109, 11))
         screen.blit(self.text, (800, 20))
         if self.current_health < self.target_health:
-            self.current_health += self.health_change_speed
-            transition_width = int((self.target_health - self.current_health) / self.health_ratio)
-            transition_color = (0, 255, 0)
+            result = self.health_change_function(1, (0, 255, 0))
 
         if self.current_health > self.target_health:
-            self.current_health -= self.health_change_speed
-            transition_width = int((self.target_health - self.current_health) / self.health_ratio)
-            transition_color = (255, 255, 0)
+            result = self.health_change_function(-1, (255, 255, 0))
 
         health_bar_width = int(self.current_health / self.health_ratio)
         health_bar = pygame.Rect(800, 100, health_bar_width, 25)
-        transition_bar = pygame.Rect(health_bar.right, 100, transition_width, 25)
+        transition_bar = pygame.Rect(health_bar.right, 100, result[0], 25)
 
         pygame.draw.rect(screen, (255, 0, 0), health_bar)
-        pygame.draw.rect(screen, transition_color, transition_bar)
+        pygame.draw.rect(screen, result[1], transition_bar)
         pygame.draw.rect(screen, (255, 255, 255), (800, 100, self.health_bar_length, 25), 4)
+
+        self.font = pygame.font.Font("assets/fonts/font.ttf", 25)
+        self.text = self.font.render(f"{self.current_health}/{self.max_health}", True, (44, 36, 199))
+        screen.blit(self.text, (900, 100))
 
     def clone(self):
         return NotImplemented

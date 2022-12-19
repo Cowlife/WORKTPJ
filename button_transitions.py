@@ -48,7 +48,8 @@ class Play(ButtonTransition, FadeTransition):
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         dropdown = ButtonTransition.input_db_handling(self)
-        self.menu.executioner(True, Globals.mapping_buttons_play, screen, list_selector=dropdown[0],dropdowner=dropdown[1])
+        self.menu.executioner(True, Globals.mapping_buttons_play, screen, list_selector=dropdown[0],
+                              dropdowner=dropdown[1])
 
 
 class Options(ButtonTransition, FadeTransition):
@@ -149,7 +150,7 @@ class Globals:
         "music": "assets/music/PlayHub.mp3"
 
     }
-    mapping_buttons_overlay = {
+    mapping_buttons_victory_state = {
         0: Menu,
         "x_pos": 640,
         "y_pos": 620,
@@ -175,8 +176,8 @@ class Globals:
         "title": "Choose your characters!",
         "font_size_title": 32,
         "rect_cd": (640, 50),
-        "image_inputs": ["Play", "Start", "Left", "Right"],
-        "text_inputs": ["BACK", "START", "<-", "->"],
+        "image_inputs": ["Play", "Start"],
+        "text_inputs": ["BACK", "START"],
         "color_base": "#2596be",
         "color_hovering": "Yellow",
         "font_size": 50,
@@ -186,19 +187,23 @@ class Globals:
         "music": "assets/music/characterselect.mp3"
     }
 
-    mapping_buttons_character_select_button = {
-        "x_pos": 160,
-        "y_pos": 320,
-        "title": "",
-        "font_size_title": 0,
-        "rect_cd": (0, 0),
-        "image_inputs": ["Left", "Right"],
-        "text_inputs": ["<-", "->"],
+    mapping_buttons_losing_state = {
+        0: Song,
+        1: Play,
+        2: CharacterSelect,
+        3: Menu,
+        "x_pos": 640,
+        "y_pos": 210,
+        "title": "You took too much damage!",
+        "font_size_title": 32,
+        "rect_cd": (640, 50),
+        "image_inputs": ["Play", "Start", "Quit", "Options"],
+        "text_inputs": ["RESTART", "RETURN TO SONG SELECT", "RETURN TO CHARACTER SELECT", "RETURN TO MENU"],
         "color_base": "#2596be",
         "color_hovering": "Yellow",
         "font_size": 25,
-        "horizontal": True,
-        "separation": 350,
+        "horizontal": False,
+        "separation": 150,
         "menu_bg": "assets/global_images/Background.png",
         "music": "assets/music/PlayHub.mp3"
     }
