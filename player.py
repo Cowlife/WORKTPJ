@@ -20,7 +20,7 @@ class ImageEntityModel:
 
 
 class EntityModel:
-    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=0):
+    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=0, name='', damage_amount=200):
         self.x_y_start = x_y_start
         self.frames_in_x_and_y = frames_in_x_and_y
         self.width_height = width_height
@@ -30,6 +30,8 @@ class EntityModel:
         self.health_bar_length = 400
         self.current_health = max_health  # 200 for testing
         self.target_health = max_health
+        self.name = name
+        self.damage_amount = damage_amount
 
 
 class Entity(pygame.sprite.Sprite):
@@ -55,8 +57,10 @@ class Entity(pygame.sprite.Sprite):
         self.health_bar_length = entitymodel.health_bar_length
         self.current_health = entitymodel.current_health
         self.target_health = entitymodel.target_health
+        self.name = entitymodel.name
         self.health_ratio = self.max_health / self.health_bar_length
         self.health_change_speed = 20
+        self.amount = entitymodel.damage_amount
 
     def move_sprite(self, speed):
         self.current_sprite += speed
@@ -86,7 +90,7 @@ class Entity(pygame.sprite.Sprite):
                                                              self.entitymodel.width_height[1]))
 
     def update(self) -> bool:
-        return self.move_sprite(0.5)
+        return self.move_sprite(0.25)
         # return args(kwargs)
 
     def get_damage(self, amount):
@@ -139,7 +143,6 @@ class Slime(Entity):
     def __init__(self, pos, entitymodel) -> None:
         super().__init__(pos, entitymodel)
 
-
     def clone(self) -> Entity:
         return Slime(self.pos, self.entitymodel)
 
@@ -152,13 +155,27 @@ class Sorceror(Entity):
     def clone(self) -> Entity:
         return Sorceror(self.pos, self.entitymodel, self.health)
 
-class Crystal(Entity):
-    def __init__(self, pos, entitymodel) -> None:
-        super().__init__(pos, entitymodel)
 
+class Crystal(Entity):
+    def __init__(self, pos, entitymodel, name, amount) -> None:
+        super().__init__(pos, entitymodel)
+        self.name = name
+        self.amount = amount
 
     def clone(self) -> Entity:
-        return Crystal(self.pos, self.entitymodel)
+        return Crystal(self.pos, self.entitymodel, self.name, self.amount)
+
+class Heal(Entity):
+    def __init__(self, pos, entitymodel, name, amount) -> None:
+        super().__init__(pos, entitymodel)
+        self.name = name
+        self.amount = amount
+
+    def clone(self) -> Entity:
+        return Crystal(self.pos, self.entitymodel, self.name, self.amount)
+
+
+
 
 class Spawner:
     def spawn_Entity(self, prototype):

@@ -37,11 +37,11 @@ class Alive(State):
 
 
 class FSM:
-    def __init__(self, states: list[State], transitions: dict[Transition]) -> None:
+    def __init__(self, i_f_states: list[State], states: list[State], transitions: dict[str, Transition]) -> None:
         self._states = states
         self._transitions = transitions
-        self.current: State = self._states[0]
-        self.end: State = self._states[-1]
+        self.current: State = i_f_states[0]
+        self.end: State = i_f_states[1]
 
     def update(self, event, object):
         if event:
@@ -67,9 +67,10 @@ if __name__ == "__main__":
     transitions = {
         "rest": Transition(menu, options),
         "engage": Transition(options, menu),
-        "harakiri": Transition(options, dead)
+        "harakiri": Transition(options, dead),
+        "shot": Transition(menu, dead)
     }
-    fsm = FSM(states, transitions)
+    fsm = FSM([states[0], states[2]], states, transitions)
     event = None
     while fsm.update(event, None):
         event = input(">")
