@@ -152,6 +152,13 @@ class Sorceror(Entity):
     def clone(self) -> Entity:
         return Sorceror(self.pos, self.entitymodel, self.health)
 
+class Crystal(Entity):
+    def __init__(self, pos, entitymodel) -> None:
+        super().__init__(pos, entitymodel)
+
+
+    def clone(self) -> Entity:
+        return Crystal(self.pos, self.entitymodel)
 
 class Spawner:
     def spawn_Entity(self, prototype):

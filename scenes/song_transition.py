@@ -1,13 +1,13 @@
 import time
 import pygame
-import pygame_widgets
+
 from pygame import sprite, image, mixer
 from pygame.time import Clock
 from pygame_widgets.progressbar import ProgressBar
 
 import button_transitions
 from keys import keys, keys_damage
-from player import ImageEntityModel, EntityModel, Entity, Spawner, Slime, Sorceror
+from player import ImageEntityModel, EntityModel, Entity, Spawner, Slime, Sorceror, Crystal
 from scenes.menu import ScreenMenu
 from scenes.parallax_storage import ImageryGroundExecution
 from scenes.states import FSM, Transition, Alive, Options, State
@@ -18,26 +18,27 @@ class SongComponent:
 
         clock = Clock()
         counter = 0
-        image_loader = ['Bowser', 'Mario', 'Luigi']
-
-        pos_loader = [400, 500, 600]
+        image_loader = ['Bowser', 'Mario', 'Luigi']  # [400, 500, 600]
 
         frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
         frames_in_x_y_attack = [(9, 1), (4, 1), (4, 1)]
         frames_in_x_y_hurt = [(9, 1), (3, 1), (3, 1)]
+        frames_in_x_y_crystal = [(12, 1), (4, 1), (4, 1)]
 
         width_model = [(1344, 70), (1008, 58), (1068, 75)]
         width_attacks = [(999, 60), (448, 75), (444, 75)]
         width_hurt = [(675, 62), (260, 44), (285, 59)]
+        width_crystal = [(912, 75), (308, 48), (348, 59)]
 
         start_pos_model = [(0, 0), (0, 0), (0, 0)]
         start_pos_attacks = [(26, 89), (0, 70), (0, 79)]
         start_pos_hurt = [(0, 165), (0, 174), (0, 180)]
+        start_pos_crystal = [(0, 229), (77, 244), (20, 246)]
 
         counter_final = 10
 
-        frames_in_x_y_enemy = [(2, 1), (10, 8)]
-        width_enemy = [(90, 45), (880, 1280)]
+        frames_in_x_y_enemy = [(2, 1), (10, 8), (4, 1)]
+        width_enemy = [(90, 45), (880, 1280), (256, 64)]
 
         self.clock = clock
         self.screen = screen
@@ -48,16 +49,23 @@ class SongComponent:
         self.frames_in_x_y_model = frames_in_x_y_model
         self.frames_in_x_y_attack = frames_in_x_y_attack
         self.frames_in_x_y_hurt = frames_in_x_y_hurt
+        self.frames_in_x_y_crystal = frames_in_x_y_crystal
 
         self.width_model = width_model
         self.width_attacks = width_attacks
         self.width_hurt = width_hurt
-
-        self.pos_loader = pos_loader
+        self.width_crystal = width_crystal
 
         self.start_pos_model = start_pos_model
         self.start_pos_attacks = start_pos_attacks
         self.start_pos_hurt = start_pos_hurt
+        self.start_pos_crystal = start_pos_crystal
+
+        self.pos_loader = 400
+
+        self.frames_in_x_y_list = [frames_in_x_y_model, frames_in_x_y_attack, frames_in_x_y_hurt, frames_in_x_y_crystal]
+        self.width_list = [width_model, width_attacks, width_hurt, width_crystal]
+        self.start_pos_list = [start_pos_model, start_pos_attacks, start_pos_hurt, start_pos_crystal]
 
         self.counter_final = counter_final
 
@@ -66,10 +74,13 @@ class SongComponent:
         self.moving_sprites = sprite.Group()
         self.attacking_sprites = sprite.Group()
         self.hurting_sprites = sprite.Group()
-        self.enemy_loader = ['slime', 'dancing']
-        self.health_enemies = [0, 300]
-        self.entire = [False, True]
-        self.flipper = [True, True]
+        self.crystal_sprites = sprite.Group()
+        self.sprite_group_list = [self.moving_sprites, self.attacking_sprites, self.hurting_sprites,
+                                  self.crystal_sprites]
+        self.enemy_loader = ['slime', 'dancing', 'crystal']
+        self.health_enemies = [0, 300, 0]
+        self.entire = [False, True, False]
+        self.flipper = [True, True, False]
         self.enemy_sprites = sprite.Group()
 
         self._menu = Alive()
@@ -92,44 +103,51 @@ class SongComponent:
 
     def load(self, map, spawner, list_enemies):
         rects, entity_list = [], []
+        info_spawner = ['0', '1', 'c']
         mixer.music.load("musics/" + map + ".mp3")
         mixer.music.play()
         with open(f"charts/{map}.txt", 'r') as f:
             data = f.readlines()
         for y in range(len(data)):
             for x in range(len(data[y])):
-                if data[y][x] == '0':
-                    self.spawner_entity_list(x, y, rects, spawner, list_enemies[0], entity_list)
-                elif data[y][x] == '1':
-                    self.spawner_entity_list(x, y, rects, spawner, list_enemies[1], entity_list)
+                for i in range(len(info_spawner)):
+                    if data[y][x] == info_spawner[i]:
+                        self.spawner_entity_list(x, y, rects, spawner, list_enemies[i], entity_list)
         return rects, entity_list
 
-    def entity_loader(self):
+    def non_existent_file(self):
+        return FileNotFoundError
+
+    def loading_singular_player(self, personImageEntityModel, ind, frames_in_x_y, width, start_pos, sprite_group):
+        personEntityModel = EntityModel(personImageEntityModel, frames_in_x_y[ind],
+                                        width[ind], start_pos[ind], max_health=1000)
+        player = Entity((50, self.pos_loader), personEntityModel)
+        sprite_group.add(player)
+        return player
+
+    def loading_players(self):
         for i in self.image_loader:
             ind = self.image_loader.index(i)
             personImageEntityModel = ImageEntityModel(False, image.load(f'assets/sprites_player/{i}.png'))
-            personEntityModel = EntityModel(personImageEntityModel, self.frames_in_x_y_model[ind],
-                                            self.width_model[ind], self.start_pos_model[ind], max_health=1000)
-            self.player = Entity((50, self.pos_loader[ind]), personEntityModel)
-            personEntityModelAttack = EntityModel(personImageEntityModel, self.frames_in_x_y_attack[ind],
-                                                  self.width_attacks[ind], self.start_pos_attacks[ind], max_health=1000)
-            self.player_attack = Entity((50, self.pos_loader[ind]), personEntityModelAttack)
-            personEntityModelHurt = EntityModel(personImageEntityModel, self.frames_in_x_y_hurt[ind],
-                                                  self.width_hurt[ind], self.start_pos_hurt[ind], max_health=1000)
-            self.player_hurt = Entity((50, self.pos_loader[ind]), personEntityModelHurt)
-            self.moving_sprites.add(self.player)
-            self.attacking_sprites.add(self.player_attack)
-            self.hurting_sprites.add(self.player_hurt)
+            for a in range(len(self.start_pos_list)):
+                self.player = self.loading_singular_player(personImageEntityModel, ind, self.frames_in_x_y_list[a],
+                                                           self.width_list[a], self.start_pos_list[a],
+                                                           self.sprite_group_list[a])
+            self.pos_loader += 100
+
+    def loading_enemies(self):
         for z in self.enemy_loader:
             ind = self.enemy_loader.index(z)
             enemyImageEntityModel = ImageEntityModel(self.entire[ind], image.load(f'assets/sprites_enemy/{z}.png'),
                                                      self.flipper[ind])
-            enemyEntityModel = EntityModel(enemyImageEntityModel, self.frames_in_x_y_enemy[ind], self.width_enemy[ind],
-                                           max_health=self.health_enemies[ind])
-            if z == 'slime':
-                self.enemy_attack = Slime((0, 0), enemyEntityModel)
-            elif z == 'dancing':
-                self.enemy_attack = Sorceror((0, 0), enemyEntityModel, enemyEntityModel.current_health)
+
+            self.enemyEntityModel = EntityModel(enemyImageEntityModel, self.frames_in_x_y_enemy[ind],
+                                                self.width_enemy[ind],
+                                                max_health=self.health_enemies[ind])
+            self.funcs = {'slime': Slime((0, 0), self.enemyEntityModel),
+                          'dancing': Sorceror((0, 0), self.enemyEntityModel, self.enemyEntityModel.current_health),
+                          'crystal': Crystal((0, 0), self.enemyEntityModel)}
+            self.enemy_attack = self.funcs.get(z, self.non_existent_file())
             self.enemy_sprites.add(self.enemy_attack)
 
     def key_and_loop_handler(self, keys, keys_damage):
@@ -163,7 +181,8 @@ class SongExecutor(SongComponent):
         super().__init__(screen, song_file)
 
     def UnityExecutor(self):
-        self.entity_loader()
+        self.loading_players()
+        self.loading_enemies()
 
         spawner = Spawner()
 
@@ -172,7 +191,8 @@ class SongExecutor(SongComponent):
         startTime = time.time()
         progressBar = ProgressBar(self.screen, 100, 100, 500, 40,
                                   lambda: (time.time() - startTime) / self.counter_final,
-                                  curved=True)
+                                  curved=False)
+        progressBar.draw()
 
         imagery = ImageryGroundExecution(0, "Jungle", 5, [(1280, 256), (844, 475)], self.screen, 0)
 
@@ -180,39 +200,48 @@ class SongExecutor(SongComponent):
         list_enemies = self.enemy_sprites.sprites()
         map_rect = self.load(self.song_file, spawner, list_enemies)
 
-        list_models = self.moving_sprites.sprites()
-        list_attacks = self.attacking_sprites.sprites()
-        list_hurts = self.hurting_sprites.sprites()
+        # list_of_sprites[0] = self.sprite_group_list[0].sprites()
+        # list_of_sprites[1] = self.sprite_group_list[1].sprites()
+        # list_of_sprites[2] = self.sprite_group_list[2].sprites()
+        # list_crystal = self.sprite_group_list[3].sprites()
+
+        # list_of_sprites = []
+        # for spr in range(len(self.sprite_group_list)):
+        #     list_of_sprites.append(self.sprite_group_list[spr].sprites())
+
+        list_of_sprites = [self.sprite_group_list[spr].sprites() for spr in range(len(self.sprite_group_list))]
 
         while True:
             self.clock.tick(60)  # limit movement screen
 
             imagery.loop_executor()
 
-            self.moving_sprites.update()
-            self.attacking_sprites.update()
+            self.sprite_group_list[0].update()  # moving sprites
+            self.sprite_group_list[1].update()  # attacking sprites
+            self.sprite_group_list[2].update()
             self.player.update_health(self.screen)
 
             # self.player.get_damage(200)
 
             for i in range(-3, 0):
-                if list_attacks[i].attack_animation:
+                if list_of_sprites[1][i].attack_animation:
                     self.player.get_health(200)
-                    self.moving_sprites.remove(list_attacks[i])
-                    self.moving_sprites.add(list_models[i])
-                    list_attacks[i].current_sprite = 0
-                    list_attacks[i].attack_stance = not list_attacks[i].attack_stance
-                    list_attacks[i].attack_animation = not list_attacks[i].attack_animation
-                if list_hurts[i].attack_animation:
-                    self.moving_sprites.remove(list_hurts[i])
-                    self.moving_sprites.add(list_models[i])
-                    list_hurts[i].current_sprite = 0
-                    list_hurts[i].attack_stance = not list_hurts[i].attack_stance
-                    list_hurts[i].attack_animation = not list_hurts[i].attack_animation
+                    self.sprite_group_list[0].remove(list_of_sprites[1][i])
+                    self.sprite_group_list[0].add(list_of_sprites[0][i])
+                    list_of_sprites[1][i].current_sprite = 0
+                    list_of_sprites[1][i].attack_stance = not list_of_sprites[1][i].attack_stance
+                    list_of_sprites[1][i].attack_animation = not list_of_sprites[1][i].attack_animation
+                if list_of_sprites[2][i].attack_animation:
+                    self.sprite_group_list[0].remove(list_of_sprites[2][i])
+                    self.sprite_group_list[0].add(list_of_sprites[0][i])
+                    list_of_sprites[2][i].current_sprite = 0
+                    list_of_sprites[2][i].attack_stance = not list_of_sprites[2][i].attack_stance
+                    list_of_sprites[2][i].attack_animation = not list_of_sprites[2][i].attack_animation
 
             for rect, enemy in zip(map_rect[0], map_rect[1]):
                 pygame.draw.rect(self.screen, (200, 0, 0), rect)
                 self.screen.blit(enemy.image, rect)
+
                 enemy.text_printer(25, f"{int(enemy.target_health / 200) + 1}", (222, 109, 11), rect, self.screen)
                 # counters to stronger enemies
                 enemy.update()
@@ -231,28 +260,29 @@ class SongExecutor(SongComponent):
                         key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
                         for i in range(-3, 0):
                             if key.key == key_list[i]:
-                                self.moving_sprites.remove(list_models[i])
-                                self.moving_sprites.add(list_attacks[i])
-                                list_attacks[i].current_sprite = 0
-                                list_attacks[i].attack_stance = True
+                                self.sprite_group_list[0].remove(list_of_sprites[0][i])
+                                self.sprite_group_list[0].add(list_of_sprites[1][i])
+                                list_of_sprites[1][i].current_sprite = 0
+                                list_of_sprites[1][i].attack_stance = True
                         pygame.mixer.Sound.play(sound_effecting)
                         key.handled = True
                 for key in keys_damage:
                     if key.rect.colliderect(rect) and key.handled:
+                        self.player.get_damage(200)
                         map_rect[0].remove(rect)
                         map_rect[1].remove(enemy)
-                        self.player.get_damage(200)
+
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/damage sound effect.wav")
                         key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
                         for i in range(-3, 0):
                             if key.key == key_list[i]:
-                                self.moving_sprites.remove(list_models[i])
-                                self.moving_sprites.add(list_hurts[i])
-                                list_hurts[i].current_sprite = 0
-                                list_hurts[i].attack_stance = True
+                                self.sprite_group_list[0].remove(list_of_sprites[0][i])
+                                self.sprite_group_list[0].add(list_of_sprites[2][i])
+                                list_of_sprites[2][i].current_sprite = 0
+                                list_of_sprites[2][i].attack_stance = True
                         pygame.mixer.Sound.play(sound_effecting)
 
-            self.moving_sprites.draw(self.screen)
+            self.sprite_group_list[0].draw(self.screen)
 
             if imagery.counter == self.counter_final:
                 self.scene_transitor(button_transitions.Globals.mapping_buttons_victory_state)
