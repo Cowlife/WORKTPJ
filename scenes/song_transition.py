@@ -251,8 +251,10 @@ class SongExecutor(SongComponent):
                         map_rect[1].remove(enemy)
 
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/damage sound effect.wav")
+                        key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
                         for i in range(-3, 0):
-                            animation_transition.start_attack(2, i)
+                            if key.key == key_list[i]:
+                                animation_transition.update_animation(2, i)
                         pygame.mixer.Sound.play(sound_effecting)
 
             self.sprite_group_list[0].draw(self.screen)
