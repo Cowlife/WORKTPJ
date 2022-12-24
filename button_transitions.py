@@ -30,9 +30,9 @@ class FadeTransition:
 
 class ButtonTransition(FadeTransition):
 
-    def input_db_handling(self, database_name):
+    def input_db_handling(self, database_name, variables_search):
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, database_name)
-        test.retrieve('name')
+        test.retrieve(variables_search)
         return test.lister
 
     def execute(self, buttons, menu_mouse_pos, screen):
@@ -44,9 +44,10 @@ class Play(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"')
+        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"', ['name', 'file_name'])
         self.menu.executioner(True, Globals.mapping_buttons_play, screen,
-                              list_selector=dropdown)
+                              list_selector=dropdown[0], list_value=dropdown[1],
+                              character_choice=False)
 
 
 class Options(ButtonTransition, FadeTransition):
@@ -70,8 +71,9 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"')
-        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen)
+        dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
+        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
+                              list_selector=dropdown[0], character_choice=True)
 
 
 class Song(ButtonTransition, FadeTransition):

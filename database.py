@@ -17,6 +17,15 @@ class DataBaseModel:
         self.conn = None
         self.lister = []
 
+    def retrieve_data(self, cur, element, listing):
+        cur.execute(f''' 
+                    SELECT {element}
+                    FROM {self.table_name} ''')
+        # cur.execute('SELECT width FROM "PygameMove"')
+        for record in cur.fetchall():
+            listing.append(record[element])
+        return listing
+
     def retrieve(self, name_string):
         try:
             with psycopg2.connect(
@@ -27,12 +36,10 @@ class DataBaseModel:
                     port=self.port_id) as self.conn:
 
                 with self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-                    cur.execute(f''' 
-                                SELECT {name_string}
-                                FROM {self.table_name} ''')
-                    # cur.execute('SELECT width FROM "PygameMove"')
-                    for record in cur.fetchall():
-                        self.lister.append(record[name_string])
+                    for i in name_string:
+                        listing = []
+                        result = self.retrieve_data(cur, i, listing)
+                        self.lister.append(result)
         except Exception as error:
             print(f'{error}namor')
         finally:
@@ -40,3 +47,7 @@ class DataBaseModel:
                 self.conn.close()
         return self.lister
 
+if __name__ == '__main__':
+    test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
+    test.retrieve(['name', 'file_name'])
+    print(test.lister)

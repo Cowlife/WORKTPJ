@@ -29,20 +29,32 @@ class TransitoryMenu:
                                 screen)
         t_menu.struture_execution(mapping_globals, dropper)
 
-
-    def dropdown_menu_executor(self, screen, list_selector):
+    def dropdown_menu_executor(self, screen, list_selector, list_value, character_choice):
+        if list_value is None:
+            list_value = list_selector
+        print(list_value)
+        print(list_selector)
         dropdown = Dropdown(
             screen, 120, 310, 150, 50, name='Select Character',
             choices=list_selector, colour=(200, 0, 0),
-            borderRadius=3, values=list_selector, direction='down', textVAlign='bottom'
+            borderRadius=3, values=list_value, direction='down', textVAlign='bottom'
         )
 
-        def printValue():
-            sound_effecting = mixer.Sound("assets/sound_narrators/CharacterChoice.wav")
-            if dropdown.getSelected() is not None:
-                sound_effecting = mixer.Sound(f"assets/sound_narrators/{dropdown.getSelected()}.wav")
-            mixer.Sound.play(sound_effecting)
-            print(dropdown.getSelected())
+        def printValue(): # works 100 for characters selected
+            if character_choice is False:
+                string_search = "musics/music1.mp3"
+                mixer.music.load(f"{string_search}")
+                if dropdown.getSelected() is not None:
+                    mixer.music.load(f"musics/{dropdown.getSelected()}.mp3")
+                mixer.music.play()
+                print(dropdown.getSelected())
+            else:
+                string_search = "assets/sound_narrators/CharacterChoice.wav"
+                sound_effecting = mixer.Sound(f"{string_search}")
+                if dropdown.getSelected() is not None:
+                    sound_effecting = mixer.Sound(f"assets/sound_narrators/{dropdown.getSelected()}.wav")
+                mixer.Sound.play(sound_effecting)
+                print(dropdown.getSelected())
 
         button = Button(
             screen, 120, 400, 150, 50, text='Pick', fontSize=30,
@@ -51,19 +63,20 @@ class TransitoryMenu:
             textVAlign='bottom'
         )
         return dropdown, button
+
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None):
+                    color="black", list_selector=None, list_value=None, character_choice=None):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None):
+                    color="black", list_selector=None, list_value=None, character_choice=None):
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
         dropper = None
         if list_selector is not None:
-            dropper = self.dropdown_menu_executor(screen, list_selector)
+            dropper = self.dropdown_menu_executor(screen, list_selector, list_value, character_choice)
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
             self.menu_constructor(mapping_globals, screen, dropper)
