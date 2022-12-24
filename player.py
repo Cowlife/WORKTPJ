@@ -90,7 +90,7 @@ class Entity(pygame.sprite.Sprite):
                                                              self.entitymodel.width_height[1]))
 
     def update(self) -> bool:
-        return self.move_sprite(0.25)
+        return self.move_sprite(0.4)
         # return args(kwargs)
 
     def get_damage(self, amount):

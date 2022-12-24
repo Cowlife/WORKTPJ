@@ -1,12 +1,11 @@
 import sys
 
 import pygame
+import pygame_widgets
 from pygame import mixer
 
-import spawners
-from scenes.menu import ScreenMenu
-
 from database import DataBaseModel
+from scenes.menu import ScreenMenu
 from scenes.song_transition import SongExecutor
 from selector_app import OptionBox
 
@@ -33,10 +32,7 @@ class ButtonTransition(FadeTransition):
     def input_db_handling(self):
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"PygameMove"')
         test.retrieve('name')
-        dropdown_menu = OptionBox(
-            40, 40, 160, 40, (150, 150, 150), (100, 200, 255), pygame.font.Font(None, 30),
-            test.lister)
-        return test.lister, dropdown_menu
+        return test.lister
 
     def execute(self, buttons, menu_mouse_pos, screen):
         raise NotImplemented
@@ -48,8 +44,7 @@ class Play(ButtonTransition, FadeTransition):
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         dropdown = ButtonTransition.input_db_handling(self)
-        self.menu.executioner(True, Globals.mapping_buttons_play, screen, list_selector=dropdown[0],
-                              dropdowner=dropdown[1])
+        self.menu.executioner(True, Globals.mapping_buttons_play, screen)
 
 
 class Options(ButtonTransition, FadeTransition):
@@ -69,18 +64,18 @@ class Menu(ButtonTransition, FadeTransition):
 
 
 class CharacterSelect(ButtonTransition, FadeTransition):
-
     def execute(self, buttons, menu_mouse_pos, screen):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         dropdown = ButtonTransition.input_db_handling(self)
         self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              list_selector=dropdown[0], dropdowner=dropdown[1])
+                              list_selector=dropdown)
 
 
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
+
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)

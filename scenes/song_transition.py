@@ -182,7 +182,6 @@ class SongExecutor(SongComponent):
         progressBar = ProgressBar(self.screen, 100, 100, 500, 40,
                                   lambda: (time.time() - startTime) / self.counter_final,
                                   curved=False)
-        progressBar.draw()
 
         # Scenario Component
         imagery = ImageryGroundExecution(0, "Jungle", 5, [(1280, 256), (844, 475)], self.screen, 0)
@@ -193,6 +192,7 @@ class SongExecutor(SongComponent):
 
         list_of_sprites = [self.sprite_group_list[spr].sprites() for spr in range(len(self.sprite_group_list))]
         animation_transition = AnimationTransitionComponent(self.sprite_group_list, list_of_sprites)
+
         while True:
             self.clock.tick(60)  # limit movement screen
 
@@ -203,14 +203,13 @@ class SongExecutor(SongComponent):
 
             self.player.update_health(self.screen)
 
-            # self.player.get_damage(200)
             for i in range(-3, 0):
                 for lst_spr in range(1, len(list_of_sprites)):
                     if list_of_sprites[lst_spr][i].attack_animation:
                         animation_transition.update_animation(lst_spr, i, True)
 
             for rect, enemy in zip(map_rect[0], map_rect[1]):
-                # pygame.draw.rect(self.screen, (200, 0, 0), rect)
+                pygame.draw.rect(self.screen, (200, 0, 0), rect)
                 self.screen.blit(enemy.image, rect)
 
                 enemy.text_printer(25, f"{int(enemy.target_health / 200) + 1}", (222, 109, 11), rect, self.screen)
@@ -229,17 +228,17 @@ class SongExecutor(SongComponent):
 
                         # Transition(self._menu, self._options)
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/attack sound effect.wav")
-                        key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
+
                         for i in range(-3, 0):
                             if enemy.name == 'red':
-                                if key.key == key_list[i]:
+                                if key.key == keys[i].key:
                                     animation_transition.update_animation(3, i)
                             elif enemy.name == 'heal':
-                                if key.key == key_list[i]:
+                                if key.key == keys[i].key:
                                     self.player.get_health(enemy.amount)
                                     animation_transition.update_animation(3, i)
                             else:
-                                if key.key == key_list[i]:
+                                if key.key == keys[i].key:
                                     animation_transition.update_animation(1, i)
 
                         pygame.mixer.Sound.play(sound_effecting)
@@ -251,9 +250,9 @@ class SongExecutor(SongComponent):
                         map_rect[1].remove(enemy)
 
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/damage sound effect.wav")
-                        key_list = [pygame.K_a, pygame.K_s, pygame.K_d]
+
                         for i in range(-3, 0):
-                            if key.key == key_list[i]:
+                            if key.key == keys_damage[i].key:
                                 animation_transition.update_animation(2, i)
                         pygame.mixer.Sound.play(sound_effecting)
 

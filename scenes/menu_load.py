@@ -1,6 +1,7 @@
 import sys
 
 import pygame
+import pygame_widgets
 
 from scenes.button import Button
 
@@ -50,8 +51,9 @@ class HMenu:
             button.changeColorAndCheckForInput(self.menu_mouse_pos)
             button.update(self.screen)
 
-    def handle_input(self, mapping_globals):
-        for event in pygame.event.get():
+    def handle_input(self, mapping_globals, list_selector):
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -60,8 +62,10 @@ class HMenu:
                     if self.buttons[self.buttons.index(i)].changeColorAndCheckForInput(self.menu_mouse_pos):
                         result = mapping_globals[self.buttons.index(i)]
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
+        if list_selector is not None:
+            pygame_widgets.update(events)
 
-    def struture_execution(self, mapping_globals, list_selector, dropdown_menu):
+    def struture_execution(self, mapping_globals, list_selector):
         raise NotImplemented
 
 
@@ -71,10 +75,10 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals, list_selector, dropdown_menu):
+    def struture_execution(self, mapping_globals, list_selector):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
-        self.handle_input(mapping_globals)
+        self.handle_input(mapping_globals, list_selector)
 
         # to set-up the screen

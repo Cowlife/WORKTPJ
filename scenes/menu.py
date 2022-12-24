@@ -1,5 +1,7 @@
 import pygame
 from pygame import image, mixer
+from pygame_widgets.dropdown import Dropdown
+from pygame_widgets.button import Button
 
 from scenes.menu_load import MainTransition
 
@@ -11,7 +13,7 @@ class TransitoryMenu:
         else:
             screen.fill(color)
 
-    def menu_constructor(self, mapping_globals, screen, list_selector=None, dropdown_menu=None):
+    def menu_constructor(self, mapping_globals, screen, list_selector=None):
         t_menu = MainTransition(mapping_globals["x_pos"],
                                 mapping_globals["y_pos"],
                                 mapping_globals["title"],
@@ -25,19 +27,42 @@ class TransitoryMenu:
                                 mapping_globals["horizontal"],
                                 mapping_globals["separation"],
                                 screen)
-        t_menu.struture_execution(mapping_globals, list_selector, dropdown_menu)
+        t_menu.struture_execution(mapping_globals, list_selector)
         pygame.display.flip()
 
+    def dropdown_menu_executor(self, screen, list_selector):
+        dropdown = Dropdown(
+            screen, 120, 310, 150, 50, name='Select Character',
+            choices=list_selector, colour=(200, 0, 0),
+            borderRadius=3, values=list_selector, direction='down', textVAlign='bottom'
+        )
+
+        def printValue():
+            sound_effecting = mixer.Sound("assets/sound_narrators/CharacterChoice.wav")
+            if dropdown.getSelected() is not None:
+                sound_effecting = mixer.Sound(f"assets/sound_narrators/{dropdown.getSelected()}.wav")
+            mixer.Sound.play(sound_effecting)
+            print(dropdown.getSelected())
+
+        button = Button(
+            screen, 120, 400, 150, 50, text='Pick', fontSize=30,
+            margin=20, inactiveColour=(255, 0, 0), pressedColour=(0, 255, 0),
+            radius=5, onClick=printValue, font=pygame.font.Font('assets/fonts/titlefont.ttf', 10),
+            textVAlign='bottom'
+        )
+
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None, dropdowner=None):
+                    color="black", list_selector=None):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
     def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None, dropdowner=None):
+                    color="black", list_selector=None):
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
+        if list_selector is not None:
+            self.dropdown_menu_executor(screen, list_selector)
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
-            self.menu_constructor(mapping_globals, screen, list_selector, dropdowner)
+            self.menu_constructor(mapping_globals, screen, list_selector)
