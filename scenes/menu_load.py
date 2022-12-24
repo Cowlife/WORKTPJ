@@ -2,6 +2,9 @@ import sys
 
 import pygame
 import pygame_widgets
+from pygame_menu import Menu
+from pygame_widgets.dropdown import Dropdown
+from pygame_widgets.widget import WidgetBase
 
 from scenes.button import Button
 
@@ -51,7 +54,7 @@ class HMenu:
             button.changeColorAndCheckForInput(self.menu_mouse_pos)
             button.update(self.screen)
 
-    def handle_input(self, mapping_globals, list_selector):
+    def handle_input(self, mapping_globals, dropdown):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -61,11 +64,15 @@ class HMenu:
                 for i in self.buttons:
                     if self.buttons[self.buttons.index(i)].changeColorAndCheckForInput(self.menu_mouse_pos):
                         result = mapping_globals[self.buttons.index(i)]
+                        if dropdown is not None:
+                            for widget in dropdown:
+                                WidgetBase.hide(widget)
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
-        if list_selector is not None:
+        if dropdown is not None:
             pygame_widgets.update(events)
 
-    def struture_execution(self, mapping_globals, list_selector):
+
+    def struture_execution(self, mapping_globals, dropdown):
         raise NotImplemented
 
 
@@ -75,10 +82,11 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals, list_selector):
+    def struture_execution(self, mapping_globals, dropdown):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
-        self.handle_input(mapping_globals, list_selector)
+        self.handle_input(mapping_globals, dropdown)
+        pygame.display.update()
 
         # to set-up the screen

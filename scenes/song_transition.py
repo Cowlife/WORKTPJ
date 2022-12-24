@@ -157,8 +157,9 @@ class SongComponent:
                 key.handled = True
         # damage infliction scenario
 
-    def scene_transitor(self, dict_state):
+    def scene_transitor(self, dict_state, progress_state):
         pygame.display.flip()
+        ProgressBar.hide(progress_state)
         fade_in_upper = button_transitions.FadeTransition(self.screen)
         fade_in_upper.black_out()
         st_menu = ScreenMenu()
@@ -259,9 +260,9 @@ class SongExecutor(SongComponent):
             self.sprite_group_list[0].draw(self.screen)
 
             if imagery.counter == self.counter_final:
-                self.scene_transitor(button_transitions.Globals.mapping_buttons_victory_state)
+                self.scene_transitor(button_transitions.Globals.mapping_buttons_victory_state, progressBar)
             if self.player.current_health == 0:
-                self.scene_transitor(button_transitions.Globals.mapping_buttons_losing_state)
+                self.scene_transitor(button_transitions.Globals.mapping_buttons_losing_state, progressBar)
 
             # now we will loop through the keys and handle the events
             self.key_and_loop_handler(keys, keys_damage)

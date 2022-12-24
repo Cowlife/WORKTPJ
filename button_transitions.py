@@ -3,6 +3,7 @@ import sys
 import pygame
 import pygame_widgets
 from pygame import mixer
+from pygame_menu import Menu
 
 from database import DataBaseModel
 from scenes.menu import ScreenMenu
@@ -29,8 +30,8 @@ class FadeTransition:
 
 class ButtonTransition(FadeTransition):
 
-    def input_db_handling(self):
-        test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"PygameMove"')
+    def input_db_handling(self, database_name):
+        test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, database_name)
         test.retrieve('name')
         return test.lister
 
@@ -43,8 +44,9 @@ class Play(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self)
-        self.menu.executioner(True, Globals.mapping_buttons_play, screen)
+        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"')
+        self.menu.executioner(True, Globals.mapping_buttons_play, screen,
+                              list_selector=dropdown)
 
 
 class Options(ButtonTransition, FadeTransition):
@@ -55,7 +57,7 @@ class Options(ButtonTransition, FadeTransition):
         self.menu.executioner(False, Globals.mapping_buttons_options, screen, "white")
 
 
-class Menu(ButtonTransition, FadeTransition):
+class MenuOption(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
@@ -68,14 +70,12 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self)
-        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              list_selector=dropdown)
+        dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"')
+        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen)
 
 
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen):
-
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
@@ -110,7 +110,7 @@ class Globals:
         "music": "assets/music/Menu.mp3"
     }
     mapping_buttons_options = {
-        0: Menu,
+        0: MenuOption,
         "x_pos": 640,
         "y_pos": 460,
         "title": "This is the OPTIONS screen.",
@@ -127,7 +127,7 @@ class Globals:
         "music": "assets/music/PlayHub.mp3"
     }
     mapping_buttons_play = {
-        0: Menu,
+        0: MenuOption,
         1: CharacterSelect,
         "x_pos": 260,
         "y_pos": 620,
@@ -146,7 +146,7 @@ class Globals:
 
     }
     mapping_buttons_victory_state = {
-        0: Menu,
+        0: MenuOption,
         "x_pos": 640,
         "y_pos": 620,
         "title": "Level Complete!",
@@ -186,7 +186,7 @@ class Globals:
         0: Song,
         1: Play,
         2: CharacterSelect,
-        3: Menu,
+        3: MenuOption,
         "x_pos": 640,
         "y_pos": 210,
         "title": "You took too much damage!",
