@@ -20,7 +20,8 @@ class ImageEntityModel:
 
 
 class EntityModel:
-    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=0, name='', damage_amount=200):
+    def __init__(self, imageentitymodel, frames_in_x_and_y, width_height, x_y_start=(0, 0), max_health=0, name='',
+                 damage_amount=200):
         self.x_y_start = x_y_start
         self.frames_in_x_and_y = frames_in_x_and_y
         self.width_height = width_height
@@ -165,6 +166,7 @@ class Crystal(Entity):
     def clone(self) -> Entity:
         return Crystal(self.pos, self.entitymodel, self.name, self.amount)
 
+
 class Heal(Entity):
     def __init__(self, pos, entitymodel, name, amount) -> None:
         super().__init__(pos, entitymodel)
@@ -173,8 +175,6 @@ class Heal(Entity):
 
     def clone(self) -> Entity:
         return Crystal(self.pos, self.entitymodel, self.name, self.amount)
-
-
 
 
 class Spawner:

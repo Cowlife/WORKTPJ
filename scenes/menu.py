@@ -7,13 +7,13 @@ from scenes.menu_load import MainTransition
 
 
 class TransitoryMenu:
-    def background_implementer(self, background_bool, mapping_globals, screen, color="black"):
+    def background_implementer(self, background_bool, mapping_globals, screen, color):
         if background_bool:
             screen.blit(image.load(mapping_globals["menu_bg"]), (0, 0))
         else:
             screen.fill(color)
 
-    def menu_constructor(self, mapping_globals, screen, dropper=None):
+    def menu_constructor(self, mapping_globals, screen, dropper_list=None):
         t_menu = MainTransition(mapping_globals["x_pos"],
                                 mapping_globals["y_pos"],
                                 mapping_globals["title"],
@@ -27,56 +27,67 @@ class TransitoryMenu:
                                 mapping_globals["horizontal"],
                                 mapping_globals["separation"],
                                 screen)
-        t_menu.struture_execution(mapping_globals, dropper)
+        t_menu.struture_execution(mapping_globals, dropper_list)
 
-    def dropdown_menu_executor(self, screen, list_selector, list_value, character_choice):
+    def dropdown_menu_executor(self, screen, list_selector, list_value, settings):
+        dropdown_list, button_list = [], []
         if list_value is None:
             list_value = list_selector
-        print(list_value)
-        print(list_selector)
-        dropdown = Dropdown(
-            screen, 120, 310, 150, 50, name='Select Character',
-            choices=list_selector, colour=(200, 0, 0),
-            borderRadius=3, values=list_value, direction='down', textVAlign='bottom'
-        )
+        initial_pos = [settings["x_pos"], settings["y_pos"]]
+        for i in range(settings["elements"]):
+            dropdown = Dropdown(
+                screen, initial_pos[0], initial_pos[1], settings["width"], settings["height"],
+                name=settings["label"], choices=list_selector, colour=settings["colour"],
+                borderRadius=settings["borderRadius"], values=list_value, direction=settings["direction"],
+                textVAlign=settings["textVAlign"]
+            )
 
-        def printValue(): # works 100 for characters selected
-            if character_choice is False:
-                string_search = "musics/music1.mp3"
-                mixer.music.load(f"{string_search}")
-                if dropdown.getSelected() is not None:
-                    mixer.music.load(f"musics/{dropdown.getSelected()}.mp3")
-                mixer.music.play()
-                print(dropdown.getSelected())
+            def printValue(default, file_acessor, i):
+                if list_value == list_selector:
+                    sound_effecting = mixer.Sound(f"{file_acessor}/{default}")
+                    if dropdown_list[i].getSelected() is not None:
+                        sound_effecting = mixer.Sound(f"{file_acessor}/{dropdown_list[i].getSelected()}.wav")
+                    mixer.Sound.play(sound_effecting)
+                else:
+                    mixer.music.load(f"{file_acessor}/{default}")
+                    if dropdown_list[i].getSelected() is not None:
+                        mixer.music.load(f"{file_acessor}/{dropdown_list[i].getSelected()}.mp3")
+                    mixer.music.play()
+
+
+            if settings["vertical_separation"]:
+                button_pos = [initial_pos[0] + settings["local_separation"], initial_pos[1]]
             else:
-                string_search = "assets/sound_narrators/CharacterChoice.wav"
-                sound_effecting = mixer.Sound(f"{string_search}")
-                if dropdown.getSelected() is not None:
-                    sound_effecting = mixer.Sound(f"assets/sound_narrators/{dropdown.getSelected()}.wav")
-                mixer.Sound.play(sound_effecting)
-                print(dropdown.getSelected())
+                button_pos = [initial_pos[0], initial_pos[1] + settings["local_separation"]]
 
-        button = Button(
-            screen, 120, 400, 150, 50, text='Pick', fontSize=30,
-            margin=20, inactiveColour=(255, 0, 0), pressedColour=(0, 255, 0),
-            radius=5, onClick=printValue, font=pygame.font.Font('assets/fonts/titlefont.ttf', 10),
-            textVAlign='bottom'
-        )
-        return dropdown, button
+            button = Button(
+                screen, button_pos[0], button_pos[1],
+                settings["pickButtonSize"][0], settings["pickButtonSize"][1], text=settings["pickButtonLabel"],
+                font=pygame.font.Font('assets/fonts/titlefont.ttf', settings["pickButtonLabelSize"]),
+                margin=20, inactiveColour=settings["pickColours"][0], pressedColour=settings["pickColours"][1],
+                onClick=printValue, onClickParams=[settings["default"], settings["file_acessor"], i],
+                radius=5, textVAlign=settings["pickVAlign"]
+            )
+            initial_pos[0] += settings["global_separation"]
+            dropdown_list.append(dropdown)
+            button_list.append(button)
+        return dropdown_list, button_list
 
-    def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None, list_value=None, character_choice=None):
+    def executioner(self, background_bool, mapping_globals, screen, **kwargs):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
-    def executioner(self, background_bool, mapping_globals, screen,
-                    color="black", list_selector=None, list_value=None, character_choice=None):
+    def executioner(self, background_bool, mapping_globals, screen, **kwargs):
+        color = kwargs.get('color', "black")
+        list_selector = kwargs.get('list_selector', None)
+        list_value = kwargs.get('list_value', None)
+        settings = kwargs.get('settings', None)
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
-        dropper = None
+        dropper_list = None
         if list_selector is not None:
-            dropper = self.dropdown_menu_executor(screen, list_selector, list_value, character_choice)
+            dropper_list = self.dropdown_menu_executor(screen, list_selector, list_value, settings)
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
-            self.menu_constructor(mapping_globals, screen, dropper)
+            self.menu_constructor(mapping_globals, screen, dropper_list)

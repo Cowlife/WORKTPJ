@@ -6,6 +6,7 @@ from pygame import mixer
 from pygame_menu import Menu
 
 from database import DataBaseModel
+from dropdown_settings import DropdownSettings
 from scenes.menu import ScreenMenu
 from scenes.song_transition import SongExecutor
 from selector_app import OptionBox
@@ -47,7 +48,7 @@ class Play(ButtonTransition, FadeTransition):
         dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"', ['name', 'file_name'])
         self.menu.executioner(True, Globals.mapping_buttons_play, screen,
                               list_selector=dropdown[0], list_value=dropdown[1],
-                              character_choice=False)
+                              settings=DropdownSettings.mapping_songs)
 
 
 class Options(ButtonTransition, FadeTransition):
@@ -73,7 +74,7 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         FadeTransition.black_out(self)
         dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
         self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              list_selector=dropdown[0], character_choice=True)
+                              list_selector=dropdown[0], settings=DropdownSettings.mapping_characters)
 
 
 class Song(ButtonTransition, FadeTransition):

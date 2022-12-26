@@ -66,7 +66,8 @@ class HMenu:
                         result = mapping_globals[self.buttons.index(i)]
                         if dropdown is not None:
                             for widget in dropdown:
-                                WidgetBase.hide(widget)
+                                for w in widget:
+                                    WidgetBase.hide(w)
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen)
         if dropdown is not None:
             pygame_widgets.update(events)
@@ -82,11 +83,11 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals, dropdown):
+    def struture_execution(self, mapping_globals, dropdown_list):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
-        self.handle_input(mapping_globals, dropdown)
+        self.handle_input(mapping_globals, dropdown_list)
         pygame.display.update()
 
         # to set-up the screen
