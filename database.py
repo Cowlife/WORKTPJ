@@ -47,6 +47,15 @@ class DataBaseModel:
                 self.conn.close()
         return self.lister
 
+
+class ShallowRetrieval(DataBaseModel):
+    def __init__(self, hostname, database, username, pwd, port_id, table_name):
+        super().__init__(hostname, database, username, pwd, port_id, table_name)
+
+    def clone(self) -> DataBaseModel:
+        return ShallowRetrieval()
+
+
 if __name__ == '__main__':
     test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
     test.retrieve(['name', 'file_name'])

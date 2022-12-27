@@ -72,7 +72,6 @@ class HMenu:
         if dropdown is not None:
             pygame_widgets.update(events)
 
-
     def struture_execution(self, mapping_globals, dropdown):
         raise NotImplemented
 

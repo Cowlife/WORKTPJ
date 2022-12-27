@@ -29,6 +29,17 @@ class TransitoryMenu:
                                 screen)
         t_menu.struture_execution(mapping_globals, dropper_list)
 
+    def printChar(self, screen, dropper_list):
+        imp = pygame.image.load(f"assets/gifs/{dropper_list.getSelected()}.png").convert()
+        image = pygame.transform.scale(imp, (200, 200))
+        screen.blit(image, (dropper_list.getX() - 25, dropper_list.getY() + 100))
+
+    def printinfo(self, screen, dropper_list, list_selector, list_value, list_end_song, list_dificulty, i):
+        pygame.draw.rect(screen, (78, 176, 194), pygame.Rect(120, 180, 1050, 350))
+        font = pygame.font.Font("assets/fonts/font.ttf", 30)
+        text = font.render(f"{dropper_list.getSelected()}", True, (78, 176, 0))
+        screen.blit(text, (100, 400))
+
     def dropdown_menu_executor(self, screen, list_selector, list_value, settings):
         dropdown_list, button_list = [], []
         if list_value is None:
@@ -53,7 +64,6 @@ class TransitoryMenu:
                     if dropdown_list[i].getSelected() is not None:
                         mixer.music.load(f"{file_acessor}/{dropdown_list[i].getSelected()}.mp3")
                     mixer.music.play()
-
 
             if settings["vertical_separation"]:
                 button_pos = [initial_pos[0] + settings["local_separation"], initial_pos[1]]
@@ -83,6 +93,8 @@ class ScreenMenu(TransitoryMenu):  # Default Menu
         list_selector = kwargs.get('list_selector', None)
         list_value = kwargs.get('list_value', None)
         settings = kwargs.get('settings', None)
+        list_end_song = kwargs.get('list_end_song', None)
+        list_dificulty = kwargs.get('list_dificulty', None)
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
         dropper_list = None
@@ -90,4 +102,14 @@ class ScreenMenu(TransitoryMenu):  # Default Menu
             dropper_list = self.dropdown_menu_executor(screen, list_selector, list_value, settings)
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
+            if dropper_list is not None:
+                if all(v is not None for v in [list_end_song, list_dificulty]):
+                    for i in range(settings["elements"]):
+                        if dropper_list[0][i].getSelected() is not None:
+                            self.printinfo(screen, dropper_list[0][i], list_selector, list_value, list_end_song[i],
+                                           list_dificulty[i], i)
+                else:
+                    for i in range(settings["elements"]):
+                        if dropper_list[0][i].getSelected() is not None:
+                            self.printChar(screen, dropper_list[0][i])
             self.menu_constructor(mapping_globals, screen, dropper_list)

@@ -45,9 +45,10 @@ class Play(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"', ['name', 'file_name'])
+        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"', ['name', 'file_name', 'song_end', 'dificulty'])
         self.menu.executioner(True, Globals.mapping_buttons_play, screen,
                               list_selector=dropdown[0], list_value=dropdown[1],
+                              list_end_song=dropdown[2], list_dificulty=dropdown[3],
                               settings=DropdownSettings.mapping_songs)
 
 
@@ -56,7 +57,7 @@ class Options(ButtonTransition, FadeTransition):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        self.menu.executioner(False, Globals.mapping_buttons_options, screen, "white")
+        self.menu.executioner(False, Globals.mapping_buttons_options, screen, color="white")
 
 
 class MenuOption(ButtonTransition, FadeTransition):
