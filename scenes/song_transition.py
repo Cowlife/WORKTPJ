@@ -14,12 +14,12 @@ from scenes.parallax_storage import ImageryGroundExecution
 
 
 class SongComponent:
-    def __init__(self, screen, song_file):
+    def __init__(self, screen, song_file, image_loader):
 
         self.spawner = Spawner()
         clock = Clock()
         counter = 0
-        image_loader = ['Bowser', 'Mario', 'Luigi']  # [400, 500, 600]
+        #['Bowser', 'Mario', 'Luigi'] [400, 500, 600]
 
         frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
         frames_in_x_y_attack = [(9, 1), (4, 1), (4, 1)]
@@ -170,8 +170,8 @@ class SongComponent:
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file):
-        super().__init__(screen, song_file)
+    def __init__(self, screen, song_file, image_loader):
+        super().__init__(screen, song_file, image_loader)
 
     def UnityExecutor(self):
         self.loading_players()

@@ -36,16 +36,17 @@ class ButtonTransition(FadeTransition):
         test.retrieve(variables_search)
         return test.lister
 
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         raise NotImplemented
 
 
 class Play(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"', ['name', 'file_name', 'song_end', 'dificulty'])
+        dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"',
+                                                      ['name', 'file_name', 'song_end', 'dificulty'])
         self.menu.executioner(True, Globals.mapping_buttons_play, screen,
                               list_selector=dropdown[0], list_value=dropdown[1],
                               list_end_song=dropdown[2], list_dificulty=dropdown[3],
@@ -53,7 +54,7 @@ class Play(ButtonTransition, FadeTransition):
 
 
 class Options(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
@@ -61,7 +62,7 @@ class Options(ButtonTransition, FadeTransition):
 
 
 class MenuOption(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
@@ -69,7 +70,7 @@ class MenuOption(ButtonTransition, FadeTransition):
 
 
 class CharacterSelect(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
@@ -79,16 +80,17 @@ class CharacterSelect(ButtonTransition, FadeTransition):
 
 
 class Song(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
+        chars = kwargs.get('chars', None)
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        song = SongExecutor(self.screen, "music3")
+        song = SongExecutor(self.screen, "music3", chars)  # ['Bowser', 'Mario', 'Luigi']
         song.UnityExecutor()
 
 
 class Quit(ButtonTransition, FadeTransition):
-    def execute(self, buttons, menu_mouse_pos, screen):
+    def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         pygame.quit()
         sys.exit()
 
