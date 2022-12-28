@@ -17,16 +17,22 @@ class DataBaseModel:
         self.conn = None
         self.lister = []
 
-    def retrieve_data(self, cur, element, listing):
-        cur.execute(f''' 
+    def retrieve_data(self, cur, element, listing, **kwargs):
+        list_results = kwargs.get('list_results', None)
+        call_sql = f''' 
                     SELECT {element}
-                    FROM {self.table_name} ''')
+                    FROM {self.table_name}'''
+        if list_results is not None:
+            call_sql += f'''WHERE "name" LIKE {str(list_results)}'''
+        cur.execute(call_sql)
+
         # cur.execute('SELECT width FROM "PygameMove"')
         for record in cur.fetchall():
             listing.append(record[element])
         return listing
 
-    def retrieve(self, name_string):
+    def retrieve(self, name_string, **kwargs):
+        list_results = kwargs.get('list_results', None)
         try:
             with psycopg2.connect(
                     host=self.hostname,
@@ -38,7 +44,7 @@ class DataBaseModel:
                 with self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                     for i in name_string:
                         listing = []
-                        result = self.retrieve_data(cur, i, listing)
+                        result = self.retrieve_data(cur, i, listing, list_results=list_results)
                         self.lister.append(result)
         except Exception as error:
             print(f'{error}namor')
@@ -48,15 +54,10 @@ class DataBaseModel:
         return self.lister
 
 
-class ShallowRetrieval(DataBaseModel):
-    def __init__(self, hostname, database, username, pwd, port_id, table_name):
-        super().__init__(hostname, database, username, pwd, port_id, table_name)
-
-    def clone(self) -> DataBaseModel:
-        return ShallowRetrieval()
-
-
 if __name__ == '__main__':
     test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
     test.retrieve(['name', 'file_name'])
     print(test.lister)
+    test2 = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
+    test2.retrieve(['scenario'], list_results=f"'{test.lister[0][0]}'")
+    print(test2.lister)

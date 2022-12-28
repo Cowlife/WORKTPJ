@@ -170,8 +170,9 @@ class SongComponent:
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, image_loader):
+    def __init__(self, screen, song_file, image_loader, scenario):
         super().__init__(screen, song_file, image_loader)
+        self.scenario = scenario
 
     def UnityExecutor(self):
         self.loading_players()
@@ -185,7 +186,7 @@ class SongExecutor(SongComponent):
                                   curved=False)
 
         # Scenario Component
-        imagery = ImageryGroundExecution(0, "Jungle", 5, [(1280, 256), (844, 475)], self.screen, 0)
+        imagery = ImageryGroundExecution(0, self.scenario, 5, [(1280, 256), (844, 475)], self.screen, 0)
 
         mixer.init()
         list_enemies = self.enemy_sprites.sprites()

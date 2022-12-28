@@ -16,6 +16,8 @@ class TransitoryMenu:
     def menu_constructor(self, mapping_globals, screen, **kwargs):
         dropper_list = kwargs.get('dropper_list', None)
         chars_selected = kwargs.get('chars_selected', [])
+        song_selected = kwargs.get('song_selected', [])
+        song_selected_label = kwargs.get('song_selected_label', [])
         t_menu = MainTransition(mapping_globals["x_pos"],
                                 mapping_globals["y_pos"],
                                 mapping_globals["title"],
@@ -29,7 +31,7 @@ class TransitoryMenu:
                                 mapping_globals["horizontal"],
                                 mapping_globals["separation"],
                                 screen)
-        t_menu.struture_execution(mapping_globals, dropper_list, chars_selected)
+        t_menu.struture_execution(mapping_globals, dropper_list, chars_selected, song_selected, song_selected_label)
 
     def printChar(self, screen, dropper_list):
         imp = pygame.image.load(f"assets/gifs/{dropper_list.getSelected()}.png").convert()
@@ -42,6 +44,7 @@ class TransitoryMenu:
         font = pygame.font.Font("assets/fonts/font.ttf", 30)
         text = font.render(f"{dropper_list.getSelected()}", True, (78, 176, 0))
         screen.blit(text, (100, 400))
+        return dropper_list.getSelected()
 
     def dropdown_menu_executor(self, screen, list_selector, list_value, settings):
         dropdown_list, button_list = [], []
@@ -106,15 +109,22 @@ class ScreenMenu(TransitoryMenu):  # Default Menu
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
             chars_selected = []
+            song_selected = kwargs.get('song_selected', "")
+            song_selected_label = kwargs.get('song_selected_label', "")
             if dropper_list is not None:
                 if all(v is not None for v in [list_end_song, list_dificulty]):
                     for i in range(settings["elements"]):
                         if dropper_list[0][i].getSelected() is not None:
-                            self.printinfo(screen, dropper_list[0][i], list_selector, list_value, list_end_song[i],
-                                           list_dificulty[i], i)
+                            song_selected = self.printinfo(screen, dropper_list[0][i], list_selector, list_value,
+                                                           list_end_song[i],
+                                                           list_dificulty[i], i)
+                            song_selected_label = dropper_list[0][i].getChoiceName()
+
                 else:
                     for i in range(settings["elements"]):
                         if dropper_list[0][i].getSelected() is not None:
                             list_chars = self.printChar(screen, dropper_list[0][i])
                             chars_selected.append(list_chars)
-            self.menu_constructor(mapping_globals, screen, dropper_list=dropper_list, chars_selected=chars_selected)
+            self.menu_constructor(mapping_globals, screen, dropper_list=dropper_list,
+                                  chars_selected=chars_selected,
+                                  song_selected=song_selected, song_selected_label=song_selected_label)

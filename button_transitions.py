@@ -1,15 +1,12 @@
 import sys
 
 import pygame
-import pygame_widgets
 from pygame import mixer
-from pygame_menu import Menu
 
 from database import DataBaseModel
 from dropdown_settings import DropdownSettings
 from scenes.menu import ScreenMenu
 from scenes.song_transition import SongExecutor
-from selector_app import OptionBox
 
 
 class FadeTransition:
@@ -31,9 +28,10 @@ class FadeTransition:
 
 class ButtonTransition(FadeTransition):
 
-    def input_db_handling(self, database_name, variables_search):
+    def input_db_handling(self, database_name, variables_search, **kwargs):
+        scenario = kwargs.get('scenario', None)
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, database_name)
-        test.retrieve(variables_search)
+        test.retrieve(variables_search, list_results=scenario)
         return test.lister
 
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
@@ -71,21 +69,30 @@ class MenuOption(ButtonTransition, FadeTransition):
 
 class CharacterSelect(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
+        song_selected = kwargs.get('song_selected', None)
+        song_selected_label = kwargs.get('song_selected_label', None)
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
         dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
         self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              list_selector=dropdown[0], settings=DropdownSettings.mapping_characters)
+                              list_selector=dropdown[0], settings=DropdownSettings.mapping_characters,
+                              song_selected=song_selected, song_selected_label=song_selected_label)
 
 
 class Song(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         chars = kwargs.get('chars', None)
+        song_selected = kwargs.get('song_selected', None)
+        song_selected_label = kwargs.get('song_selected_label', None)
+        print(song_selected_label)
+        restrictive_search = ButtonTransition.input_db_handling(self, '"Music_Database"', ['scenario'], scenario=f"'{song_selected_label}'")
+        print(restrictive_search)
+        scenario = restrictive_search[0][0]
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
         FadeTransition.black_out(self)
-        song = SongExecutor(self.screen, "music3", chars)  # ['Bowser', 'Mario', 'Luigi']
+        song = SongExecutor(self.screen, song_selected, chars, scenario)  # ['Bowser', 'Mario', 'Luigi'] - music_file
         song.UnityExecutor()
 
 
