@@ -43,7 +43,6 @@ class TransitoryMenu:
         return dropper_element.getSelected()
 
     def printinfo(self, screen, dropper_element):
-
         pygame.draw.rect(screen, (78, 176, 194), pygame.Rect(120, 180, 1050, 350))
         font = pygame.font.Font("assets/fonts/font.ttf", 30)
         text_dificulty = font.render(f"Dificulty: {dropper_element.getDificulty()}", True, (78, 176, 0))
@@ -111,9 +110,14 @@ class ScreenMenu(TransitoryMenu):  # Default Menu
         list_optionals = [kwargs.get('list_dificulty', None),
                           kwargs.get('list_end_song', None),
                           kwargs.get('list_layers', None), ]
+        # Separating song_selected from list_optionals in order to separate globals lists from selected elements
         mixer.music.load(mapping_globals["music"])
         mixer.music.play()
         dropper_list = None
+        song_selected = [kwargs.get('song_selected', None),
+                         kwargs.get('song_selected_label', None),
+                         kwargs.get('song_selected_layers', 0),
+                         kwargs.get('song_selected_song_end', 0)]
         if list_selector is not None:
             dropper_list = self.dropdown_menu_executor(screen, list_selector, list_value, settings,
                                                        list_dificulty=list_optionals[0],
@@ -122,17 +126,13 @@ class ScreenMenu(TransitoryMenu):  # Default Menu
         while True:
             self.background_implementer(background_bool, mapping_globals, screen, color)
             chars_selected = []
-            song_selected = [kwargs.get('song_selected', ""),
-                             kwargs.get('song_selected_label', ""),
-                             kwargs.get('song_selected_layers', 0),
-                             kwargs.get('song_selected_song_end', 0)]
+
             if dropper_list is not None:
                 for i in range(settings["elements"]):
-                    if all(v is not None for v in list_optionals):
-                        if dropper_list[0][i].getSelected() is not None:
+                    if dropper_list[0][i].getSelected() is not None:
+                        if all(v is not None for v in list_optionals):
                             song_selected = self.printinfo(screen, dropper_list[0][i])
-                    else:
-                        if dropper_list[0][i].getSelected() is not None:
+                        else:
                             list_chars = self.printChar(screen, dropper_list[0][i])
                             chars_selected.append(list_chars)
             self.menu_constructor(mapping_globals, screen, dropper_list=dropper_list,

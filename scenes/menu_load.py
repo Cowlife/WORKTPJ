@@ -66,7 +66,6 @@ class HMenu:
                             for widget in dropdown:
                                 for w in widget:
                                     WidgetBase.hide(w)
-                        print(song_selected_layers)
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen,
                                        characters=dropdown, chars=chars_selected,
                                        song_selected=song_selected, song_selected_label=song_selected_label,

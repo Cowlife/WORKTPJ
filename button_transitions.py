@@ -28,6 +28,11 @@ class FadeTransition:
 
 class ButtonTransition(FadeTransition):
 
+    def fade_in(self, screen):
+        mixer.music.stop()
+        FadeTransition.__init__(self, screen)
+        FadeTransition.black_out(self)
+
     def input_db_handling(self, database_name, variables_search, **kwargs):
         scenario = kwargs.get('scenario', None)
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, database_name)
@@ -40,12 +45,9 @@ class ButtonTransition(FadeTransition):
 
 class Play(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
-        mixer.music.stop()
-        FadeTransition.__init__(self, screen)
-        FadeTransition.black_out(self)
+        ButtonTransition.fade_in(self, screen)
         dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"',
                                                       ['name', 'file_name', 'song_end', 'dificulty', 'layers'])
-        print(dropdown)
         self.menu.executioner(True, Globals.mapping_buttons_play, screen,
                               list_selector=dropdown[0], list_value=dropdown[1],
                               list_end_song=dropdown[2], list_dificulty=dropdown[3],
@@ -55,17 +57,13 @@ class Play(ButtonTransition, FadeTransition):
 
 class Options(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
-        mixer.music.stop()
-        FadeTransition.__init__(self, screen)
-        FadeTransition.black_out(self)
+        ButtonTransition.fade_in(self, screen)
         self.menu.executioner(False, Globals.mapping_buttons_options, screen, color="white")
 
 
 class MenuOption(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
-        mixer.music.stop()
-        FadeTransition.__init__(self, screen)
-        FadeTransition.black_out(self)
+        ButtonTransition.fade_in(self, screen)
         self.menu.executioner(True, Globals.mapping_buttons_start, screen)
 
 
@@ -75,14 +73,17 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         song_selected_label = kwargs.get('song_selected_label', None)
         song_selected_layers = kwargs.get('song_selected_layers', None)
         song_selected_song_end = kwargs.get('song_selected_song_end', None)
-        mixer.music.stop()
-        FadeTransition.__init__(self, screen)
-        FadeTransition.black_out(self)
-        dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
-        self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                              list_selector=dropdown[0], settings=DropdownSettings.mapping_characters,
-                              song_selected=song_selected, song_selected_label=song_selected_label,
-                              song_selected_layers=song_selected_layers, song_selected_song_end=song_selected_song_end)
+        ButtonTransition.fade_in(self, screen)
+        if song_selected is not None:
+            dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
+            self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
+                                  list_selector=dropdown[0], settings=DropdownSettings.mapping_characters,
+                                  song_selected=song_selected, song_selected_label=song_selected_label,
+                                  song_selected_layers=song_selected_layers,
+                                  song_selected_song_end=song_selected_song_end)
+        else:
+            print("You must select a song!")
+            self.menu.executioner(True, Globals.mapping_buttons_start, screen)
 
 
 class Song(ButtonTransition, FadeTransition):
@@ -92,14 +93,20 @@ class Song(ButtonTransition, FadeTransition):
         song_selected_label = kwargs.get('song_selected_label', None)
         song_selected_layers = kwargs.get('song_selected_layers', None)
         song_selected_song_end = kwargs.get('song_selected_song_end', None)
-        restrictive_search = ButtonTransition.input_db_handling(self, '"Music_Database"', ['scenario'],
-                                                                scenario=f"'{song_selected_label}'")[0]
-        restrictive_search.extend([song_selected_layers, song_selected_song_end])
-        mixer.music.stop()
-        FadeTransition.__init__(self, screen)
-        FadeTransition.black_out(self)
-        song = SongExecutor(self.screen, song_selected, chars, restrictive_search)  # ['Bowser', 'Mario', 'Luigi'] - music_file
-        song.UnityExecutor()
+        scenario_search = ButtonTransition.input_db_handling(self, '"Music_Database"', ['scenario'],
+                                                             scenario=f"'{song_selected_label}'")[0]
+        scenario_search.extend([song_selected_layers, song_selected_song_end])
+        ButtonTransition.fade_in(self, screen)
+        chars_data = [ButtonTransition.input_db_handling(self, '"PygameMove"',
+                                                         ['entire_sheet', 'x_y_start_m_a_h_c',
+                                                          'frames_in_x_in_y_m_a_h_c', 'width_height_m_a_h_c'],
+                                                         scenario=f"'{ch}'") for ch in chars]
+        if len(chars_data) != 3:
+            print("You must select at least 3 characters!")
+            self.menu.executioner(True, Globals.mapping_buttons_start, screen)
+        else:
+            song = SongExecutor(self.screen, song_selected, chars, scenario_search, chars_data)
+            song.UnityExecutor()
 
 
 class Quit(ButtonTransition, FadeTransition):

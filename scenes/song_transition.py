@@ -14,67 +14,27 @@ from scenes.parallax_storage import ImageryGroundExecution
 
 
 class SongComponent:
-    def __init__(self, screen, song_file, image_loader):
+    def __init__(self, screen, song_file, image_loader, chars_data):
 
         self.spawner = Spawner()
-        clock = Clock()
-        # ['Bowser', 'Mario', 'Luigi'] [400, 500, 600]
-
-        frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
-        frames_in_x_y_attack = [(9, 1), (4, 1), (4, 1)]
-        frames_in_x_y_hurt = [(9, 1), (3, 1), (3, 1)]
-        frames_in_x_y_crystal = [(12, 1), (4, 1), (4, 1)]
-
-        width_model = [(1344, 70), (1008, 58), (1068, 75)]
-        width_attacks = [(999, 60), (448, 75), (444, 75)]
-        width_hurt = [(675, 62), (260, 44), (285, 59)]
-        width_crystal = [(912, 75), (308, 48), (348, 59)]
-
-        start_pos_model = [(0, 0), (0, 0), (0, 0)]
-        start_pos_attacks = [(26, 89), (0, 70), (0, 79)]
-        start_pos_hurt = [(0, 165), (0, 174), (0, 180)]
-        start_pos_crystal = [(0, 229), (77, 244), (20, 246)]
-
-        frames_in_x_y_enemy = [(2, 1), (10, 8), (4, 1), (7, 1)]
-        width_enemy = [(90, 45), (880, 1280), (256, 64), (224, 32)]
-
-        self.clock = clock
+        self.clock = Clock()
         self.screen = screen
         self.song_file = song_file
-
         self.image_loader = image_loader
+        self.chars_data = chars_data
+        self.pos_loader = 400  # [400, 500, 600] -> Important for position of Entities
 
-        self.frames_in_x_y_model = frames_in_x_y_model
-        self.frames_in_x_y_attack = frames_in_x_y_attack
-        self.frames_in_x_y_hurt = frames_in_x_y_hurt
-        self.frames_in_x_y_crystal = frames_in_x_y_crystal
+        self.width_enemy = [(90, 45), (880, 1280), (256, 64), (224, 32)]
+        self.frames_in_x_y_enemy = [(2, 1), (10, 8), (4, 1), (7, 1)]
 
-        self.width_model = width_model
-        self.width_attacks = width_attacks
-        self.width_hurt = width_hurt
-        self.width_crystal = width_crystal
+        self.sprite_group_list = [sprite.Group(), sprite.Group(), sprite.Group(), sprite.Group()]
+        # index marking:
+        # 0: moving sprites
+        # 1: attacking sprites
+        # 2: hurting sprites
+        # 3: crystal sprites
 
-        self.start_pos_model = start_pos_model
-        self.start_pos_attacks = start_pos_attacks
-        self.start_pos_hurt = start_pos_hurt
-        self.start_pos_crystal = start_pos_crystal
-
-        self.pos_loader = 400
-
-        self.frames_in_x_y_list = [frames_in_x_y_model, frames_in_x_y_attack, frames_in_x_y_hurt, frames_in_x_y_crystal]
-        self.width_list = [width_model, width_attacks, width_hurt, width_crystal]
-        self.start_pos_list = [start_pos_model, start_pos_attacks, start_pos_hurt, start_pos_crystal]
-
-        self.width_enemy = width_enemy
-        self.frames_in_x_y_enemy = frames_in_x_y_enemy
-        self.moving_sprites = sprite.Group()
-        self.attacking_sprites = sprite.Group()
-        self.hurting_sprites = sprite.Group()
-        self.crystal_sprites = sprite.Group()
-        self.sprite_group_list = [self.moving_sprites, self.attacking_sprites, self.hurting_sprites,
-                                  self.crystal_sprites]
         self.enemy_loader = ['slime', 'dancing', 'crystal', 'heal']
-        self.crystal_color = ['red', 'green', 'blue']
         self.health_enemies = [0, 300, 0, 0]
         self.entire = [False, True, False, False]
         self.flipper = [True, True, False, False]
@@ -103,9 +63,9 @@ class SongComponent:
     def non_existent_file(self):
         return FileNotFoundError
 
-    def loading_singular_player(self, personImageEntityModel, ind, frames_in_x_y, width, start_pos, sprite_group):
-        personEntityModel = EntityModel(personImageEntityModel, frames_in_x_y[ind],
-                                        width[ind], start_pos[ind], max_health=1000)
+    def loading_singular_player(self, personImageEntityModel, frames_in_x_y, width, start_pos, sprite_group):
+        personEntityModel = EntityModel(personImageEntityModel, frames_in_x_y,
+                                        width, start_pos, max_health=1000)
         player = Entity((50, self.pos_loader), personEntityModel)
         sprite_group.add(player)
         return player
@@ -113,11 +73,13 @@ class SongComponent:
     def loading_players(self):
         for i in self.image_loader:
             ind = self.image_loader.index(i)
-            personImageEntityModel = ImageEntityModel(False, image.load(f'assets/sprites_player/{i}.png'))
-            for a in range(len(self.start_pos_list)):
-                self.player = self.loading_singular_player(personImageEntityModel, ind, self.frames_in_x_y_list[a],
-                                                           self.width_list[a], self.start_pos_list[a],
-                                                           self.sprite_group_list[a])
+            personImageEntityModel = ImageEntityModel(self.chars_data[ind][0][0],
+                                                      image.load(f'assets/sprites_player/{i}.png'))
+            for value in range(len(self.chars_data[0])):
+                self.player = self.loading_singular_player(personImageEntityModel, self.chars_data[ind][2][0][value],
+                                                           self.chars_data[ind][3][0][value],
+                                                           self.chars_data[ind][1][0][value],
+                                                           self.sprite_group_list[value])
             self.pos_loader += 100
 
     def loading_enemies(self):
@@ -165,8 +127,8 @@ class SongComponent:
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, image_loader, result_search):
-        super().__init__(screen, song_file, image_loader)
+    def __init__(self, screen, song_file, image_loader, result_search, chars_data):
+        super().__init__(screen, song_file, image_loader, chars_data)
         self.result_search = result_search  # scenario, layers, counter_final
 
     def UnityExecutor(self):
@@ -181,7 +143,8 @@ class SongExecutor(SongComponent):
                                   curved=False)
 
         # Scenario Component
-        imagery = ImageryGroundExecution(0, self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)], self.screen, 0)
+        imagery = ImageryGroundExecution(0, self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)],
+                                         self.screen, 0)
 
         mixer.init()
         list_enemies = self.enemy_sprites.sprites()
