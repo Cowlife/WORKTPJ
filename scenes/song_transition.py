@@ -18,8 +18,7 @@ class SongComponent:
 
         self.spawner = Spawner()
         clock = Clock()
-        counter = 0
-        #['Bowser', 'Mario', 'Luigi'] [400, 500, 600]
+        # ['Bowser', 'Mario', 'Luigi'] [400, 500, 600]
 
         frames_in_x_y_model = [(16, 1), (12, 1), (12, 1)]
         frames_in_x_y_attack = [(9, 1), (4, 1), (4, 1)]
@@ -36,15 +35,13 @@ class SongComponent:
         start_pos_hurt = [(0, 165), (0, 174), (0, 180)]
         start_pos_crystal = [(0, 229), (77, 244), (20, 246)]
 
-        counter_final = 10
-
         frames_in_x_y_enemy = [(2, 1), (10, 8), (4, 1), (7, 1)]
         width_enemy = [(90, 45), (880, 1280), (256, 64), (224, 32)]
 
         self.clock = clock
         self.screen = screen
         self.song_file = song_file
-        self.counter = counter
+
         self.image_loader = image_loader
 
         self.frames_in_x_y_model = frames_in_x_y_model
@@ -67,8 +64,6 @@ class SongComponent:
         self.frames_in_x_y_list = [frames_in_x_y_model, frames_in_x_y_attack, frames_in_x_y_hurt, frames_in_x_y_crystal]
         self.width_list = [width_model, width_attacks, width_hurt, width_crystal]
         self.start_pos_list = [start_pos_model, start_pos_attacks, start_pos_hurt, start_pos_crystal]
-
-        self.counter_final = counter_final
 
         self.width_enemy = width_enemy
         self.frames_in_x_y_enemy = frames_in_x_y_enemy
@@ -170,9 +165,9 @@ class SongComponent:
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, image_loader, scenario):
+    def __init__(self, screen, song_file, image_loader, result_search):
         super().__init__(screen, song_file, image_loader)
-        self.scenario = scenario
+        self.result_search = result_search  # scenario, layers, counter_final
 
     def UnityExecutor(self):
         self.loading_players()
@@ -182,11 +177,11 @@ class SongExecutor(SongComponent):
         # now we will create a map by making a txt file
         startTime = time.time()
         progressBar = ProgressBar(self.screen, 100, 100, 500, 40,
-                                  lambda: (time.time() - startTime) / self.counter_final,
+                                  lambda: (time.time() - startTime) / self.result_search[2],
                                   curved=False)
 
         # Scenario Component
-        imagery = ImageryGroundExecution(0, self.scenario, 5, [(1280, 256), (844, 475)], self.screen, 0)
+        imagery = ImageryGroundExecution(0, self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)], self.screen, 0)
 
         mixer.init()
         list_enemies = self.enemy_sprites.sprites()
@@ -260,7 +255,7 @@ class SongExecutor(SongComponent):
 
             self.sprite_group_list[0].draw(self.screen)
 
-            if imagery.counter == self.counter_final:
+            if imagery.counter == self.result_search[2]:
                 self.scene_transitor(button_transitions.Globals.mapping_buttons_victory_state, progressBar)
             if self.player.current_health == 0:
                 self.scene_transitor(button_transitions.Globals.mapping_buttons_losing_state, progressBar)

@@ -52,7 +52,7 @@ class HMenu:
             button.changeColorAndCheckForInput(self.menu_mouse_pos)
             button.update(self.screen)
 
-    def handle_input(self, mapping_globals, dropdown, chars_selected, song_selected, song_selected_label):
+    def handle_input(self, mapping_globals, dropdown, chars_selected, song_selected, song_selected_label, song_selected_layers, song_selected_song_end):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -66,13 +66,16 @@ class HMenu:
                             for widget in dropdown:
                                 for w in widget:
                                     WidgetBase.hide(w)
+                        print(song_selected_layers)
                         result.execute(self, self.buttons, self.menu_mouse_pos, self.screen,
                                        characters=dropdown, chars=chars_selected,
-                                       song_selected=song_selected, song_selected_label=song_selected_label)
+                                       song_selected=song_selected, song_selected_label=song_selected_label,
+                                       song_selected_layers=song_selected_layers, song_selected_song_end=song_selected_song_end)
         if dropdown is not None:
             pygame_widgets.update(events)
 
-    def struture_execution(self, mapping_globals, dropdown, chars_selected, song_selected, song_selected_label):
+    def struture_execution(self, mapping_globals, dropdown, chars_selected,
+                           song_selected, song_selected_label, song_selected_layer, song_selected_song_end):
         raise NotImplemented
 
 
@@ -82,11 +85,12 @@ class MainTransition(HMenu):
         super().__init__(x_pos, y_pos, title, font_size_title, rect_cd, image_inputs, text_inputs, color_base,
                          color_hovering, font_size, horizontal, separation, screen)
 
-    def struture_execution(self, mapping_globals, dropdown_list, chars_selected, song_selected, song_selected_label):
+    def struture_execution(self, mapping_globals, dropdown_list, chars_selected,
+                           song_selected, song_selected_label, song_selected_layers, song_selected_song_end):
         self.drawing_title()
         self.inserting_asset_buttons()
         self.button_hover_effect()
-        self.handle_input(mapping_globals, dropdown_list, chars_selected, song_selected, song_selected_label)
+        self.handle_input(mapping_globals, dropdown_list, chars_selected, song_selected, song_selected_label, song_selected_layers, song_selected_song_end)
         pygame.display.update()
 
         # to set-up the screen
