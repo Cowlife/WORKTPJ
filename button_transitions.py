@@ -28,6 +28,9 @@ class FadeTransition:
 
 class ButtonTransition(FadeTransition):
 
+    def kwarg_handling(self):
+        pass
+
     def fade_in(self, screen):
         mixer.music.stop()
         FadeTransition.__init__(self, screen)
@@ -35,8 +38,9 @@ class ButtonTransition(FadeTransition):
 
     def input_db_handling(self, database_name, variables_search, **kwargs):
         scenario = kwargs.get('scenario', None)
+        order = kwargs.get('order', False)
         test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, database_name)
-        test.retrieve(variables_search, list_results=scenario)
+        test.retrieve(variables_search, list_results=scenario, order=order)
         return test.lister
 
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
@@ -105,7 +109,13 @@ class Song(ButtonTransition, FadeTransition):
             print("You must select at least 3 characters!")
             self.menu.executioner(True, Globals.mapping_buttons_start, screen)
         else:
-            song = SongExecutor(self.screen, song_selected, chars, scenario_search, chars_data)
+            enemy_data = ButtonTransition.input_db_handling(self, '"Enemy_Database"',
+                                                            ['name', 'health', 'flipper', 'entire_sheet', 'width_enemy',
+                                                             'frames_in_x_y_enemy', 'symbol'], order=True)
+            enemies_list = enemy_data[0]
+            enemy_data.remove(enemies_list)
+            song = SongExecutor(self.screen, song_selected, chars, chars_data, enemies_list, enemy_data,
+                                scenario_search)
             song.UnityExecutor()
 
 

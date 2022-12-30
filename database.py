@@ -19,11 +19,14 @@ class DataBaseModel:
 
     def retrieve_data(self, cur, element, listing, **kwargs):
         list_results = kwargs.get('list_results', None)
+        order = kwargs.get('order', False)
         call_sql = f''' 
                     SELECT {element}
                     FROM {self.table_name}'''
         if list_results is not None:
             call_sql += f'''WHERE "name" LIKE {str(list_results)}'''
+        if order is True:
+            call_sql += f'''ORDER BY "name"'''
         cur.execute(call_sql)
 
         # cur.execute('SELECT width FROM "PygameMove"')
@@ -33,6 +36,7 @@ class DataBaseModel:
 
     def retrieve(self, name_string, **kwargs):
         list_results = kwargs.get('list_results', None)
+        order = kwargs.get('order', False)
         try:
             with psycopg2.connect(
                     host=self.hostname,
@@ -44,7 +48,7 @@ class DataBaseModel:
                 with self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
                     for i in name_string:
                         listing = []
-                        result = self.retrieve_data(cur, i, listing, list_results=list_results)
+                        result = self.retrieve_data(cur, i, listing, list_results=list_results, order=order)
                         self.lister.append(result)
         except Exception as error:
             print(f'{error}namor')

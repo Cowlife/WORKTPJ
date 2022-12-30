@@ -14,31 +14,25 @@ from scenes.parallax_storage import ImageryGroundExecution
 
 
 class SongComponent:
-    def __init__(self, screen, song_file, image_loader, chars_data):
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search):
 
-        self.spawner = Spawner()
-        self.clock = Clock()
         self.screen = screen
         self.song_file = song_file
-        self.image_loader = image_loader
+        self.chars_selected = chars_selected
         self.chars_data = chars_data
+        self.enemies_list = enemies_list
+        self.enemy_data = enemy_data
+        self.result_search = result_search  # scenario, layers, counter_final
+        self.spawner = Spawner()
+        self.clock = Clock()
         self.pos_loader = 400  # [400, 500, 600] -> Important for position of Entities
-
-        self.width_enemy = [(90, 45), (880, 1280), (256, 64), (224, 32)]
-        self.frames_in_x_y_enemy = [(2, 1), (10, 8), (4, 1), (7, 1)]
-
+        self.enemy_sprites = sprite.Group()
         self.sprite_group_list = [sprite.Group(), sprite.Group(), sprite.Group(), sprite.Group()]
         # index marking:
         # 0: moving sprites
         # 1: attacking sprites
         # 2: hurting sprites
         # 3: crystal sprites
-
-        self.enemy_loader = ['slime', 'dancing', 'crystal', 'heal']
-        self.health_enemies = [0, 300, 0, 0]
-        self.entire = [False, True, False, False]
-        self.flipper = [True, True, False, False]
-        self.enemy_sprites = sprite.Group()
 
     def spawner_entity_list(self, x, y, rects, spawner_marker, entity_list):
         key_pressers = pygame.Rect((x * 50) + 650, (y * 100) + 400, 25, 25)
@@ -48,7 +42,7 @@ class SongComponent:
 
     def load(self, map, list_enemies):
         rects, entity_list = [], []
-        info_spawner = ['0', '1', 'c', 'h']
+        info_spawner = self.enemy_data[5]
         mixer.music.load("musics/" + map + ".mp3")
         mixer.music.play()
         with open(f"charts/{map}.txt", 'r') as f:
@@ -63,41 +57,54 @@ class SongComponent:
     def non_existent_file(self):
         return FileNotFoundError
 
-    def loading_singular_player(self, personImageEntityModel, frames_in_x_y, width, start_pos, sprite_group):
-        personEntityModel = EntityModel(personImageEntityModel, frames_in_x_y,
-                                        width, start_pos, max_health=1000)
-        player = Entity((50, self.pos_loader), personEntityModel)
-        sprite_group.add(player)
-        return player
+    def loading_singular_entity(self, imageEntityModel, frames_in_x_y, width, sprite_group, enemy_image, max_health, x_y_start):
+        entityModel = EntityModel(imageEntityModel, frames_in_x_and_y=frames_in_x_y,
+                                  width_height=width, x_y_start=x_y_start,
+                                  max_health=max_health)
+        if enemy_image is not None:
+            enemy_types = {'crystal': Crystal((0, 0), entityModel, 'red', 100),
+                           'dancing': Sorceror((0, 0), entityModel,
+                                               entityModel.current_health),
+                           'heal': Heal((0, 0), entityModel, 'heal', 100),
+                           'slime': Slime((0, 0), entityModel), }
+            entity = enemy_types.get(enemy_image, self.non_existent_file())
+        else:
+            entity = Entity((50, self.pos_loader), entityModel)
 
-    def loading_players(self):
-        for i in self.image_loader:
-            ind = self.image_loader.index(i)
-            personImageEntityModel = ImageEntityModel(self.chars_data[ind][0][0],
-                                                      image.load(f'assets/sprites_player/{i}.png'))
-            for value in range(len(self.chars_data[0])):
-                self.player = self.loading_singular_player(personImageEntityModel, self.chars_data[ind][2][0][value],
-                                                           self.chars_data[ind][3][0][value],
-                                                           self.chars_data[ind][1][0][value],
-                                                           self.sprite_group_list[value])
-            self.pos_loader += 100
+        sprite_group.add(entity)
+        return entity
 
-    def loading_enemies(self):
-        for z in self.enemy_loader:
-            ind = self.enemy_loader.index(z)
-            enemyImageEntityModel = ImageEntityModel(self.entire[ind], image.load(f'assets/sprites_enemy/{z}.png'),
-                                                     self.flipper[ind])
-
-            self.enemyEntityModel = EntityModel(enemyImageEntityModel, self.frames_in_x_y_enemy[ind],
-                                                self.width_enemy[ind],
-                                                max_health=self.health_enemies[ind])
-            self.enemy_types = {'slime': Slime((0, 0), self.enemyEntityModel),
-                                'dancing': Sorceror((0, 0), self.enemyEntityModel,
-                                                    self.enemyEntityModel.current_health),
-                                'crystal': Crystal((0, 0), self.enemyEntityModel, 'red', 100),
-                                'heal': Heal((0, 0), self.enemyEntityModel, 'heal', 100)}
-            self.enemy = self.enemy_types.get(z, self.non_existent_file())
-            self.enemy_sprites.add(self.enemy)
+    def loading_entities(self, entities):
+        for ent in entities:
+            for i in ent:
+                ind = ent.index(i)
+                if entities.index(ent) == 0:
+                    is_entire_is_flipped = [self.chars_data[ind][0][0], 'sprites_player', False]
+                    # default false since it does not suit me flipping characters
+                else:
+                    is_entire_is_flipped = [self.enemy_data[2][ind], 'sprites_enemy', self.enemy_data[1][ind]]
+                imageEntityModel = ImageEntityModel(entire=is_entire_is_flipped[0],
+                                                    main_element=image.load(
+                                                        f'assets/{is_entire_is_flipped[1]}/{i}.png'),
+                                                    flip=is_entire_is_flipped[2])
+                if entities.index(ent) == 0:
+                    for value in range(len(self.chars_data[0])):
+                        self.player = self.loading_singular_entity(imageEntityModel=imageEntityModel,
+                                                                   frames_in_x_y=self.chars_data[ind][2][0][value],
+                                                                   width=self.chars_data[ind][3][0][value],
+                                                                   sprite_group=self.sprite_group_list[value],
+                                                                   x_y_start=self.chars_data[ind][1][0][value],
+                                                                   max_health=1000, enemy_image=None)
+                    self.pos_loader += 100
+                else:
+                    enemy_image = i
+                    self.loading_singular_entity(imageEntityModel=imageEntityModel,
+                                                 frames_in_x_y=tuple(self.enemy_data[4][ind]),
+                                                 width=tuple(self.enemy_data[3][ind]),
+                                                 sprite_group=self.enemy_sprites,
+                                                 enemy_image=enemy_image,
+                                                 max_health=self.enemy_data[0][ind],
+                                                 x_y_start=(0,0))
 
     def key_and_loop_handler(self, keys, keys_damage):
         k = pygame.key.get_pressed()
@@ -127,16 +134,15 @@ class SongComponent:
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, image_loader, result_search, chars_data):
-        super().__init__(screen, song_file, image_loader, chars_data)
-        self.result_search = result_search  # scenario, layers, counter_final
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search):
+        super().__init__(screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search)
 
     def UnityExecutor(self):
-        self.loading_players()
-        self.loading_enemies()
 
-        # Creating the sprites and groups
-        # now we will create a map by making a txt file
+        # Entity Loader Component
+        self.loading_entities([self.chars_selected, self.enemies_list])
+
+        # Progress Bar Component
         startTime = time.time()
         progressBar = ProgressBar(self.screen, 100, 100, 500, 40,
                                   lambda: (time.time() - startTime) / self.result_search[2],
@@ -146,7 +152,6 @@ class SongExecutor(SongComponent):
         imagery = ImageryGroundExecution(0, self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)],
                                          self.screen, 0)
 
-        mixer.init()
         list_enemies = self.enemy_sprites.sprites()
         map_rect = self.load(self.song_file, list_enemies)
 
@@ -169,15 +174,15 @@ class SongExecutor(SongComponent):
                         animation_transition.update_animation(lst_spr, i, True)
 
             for rect, enemy in zip(map_rect[0], map_rect[1]):
-                pygame.draw.rect(self.screen, (200, 0, 0), rect)
-                self.screen.blit(enemy.image, rect)
-
-                enemy.text_printer(25, f"{int(enemy.target_health / 200) + 1}", (222, 109, 11), rect, self.screen)
+                if rect.x < self.screen.get_size()[0]:
+                    pygame.draw.rect(self.screen, (200, 0, 0), rect)
+                    self.screen.blit(enemy.image, rect)
+                    enemy.text_printer(25, f"{int(enemy.target_health / 200) + 1}", (222, 109, 11), rect, self.screen)
                 # counters to stronger enemies
                 enemy.update()
                 rect.x -= 5
-                for key in keys:
-                    if key.rect.colliderect(rect) and not key.handled:  # not for actually skill
+                for key in zip(keys, keys_damage):
+                    if key[0].rect.colliderect(rect) and not key[0].handled:  # not for actually skill
                         enemy.get_damage(200)
 
                         if enemy.target_health > 0:
@@ -191,20 +196,19 @@ class SongExecutor(SongComponent):
 
                         for i in range(-3, 0):
                             if enemy.name == 'red':
-                                if key.key == keys[i].key:
+                                if key[0].key == keys[i].key:
                                     animation_transition.update_animation(3, i)
                             elif enemy.name == 'heal':
-                                if key.key == keys[i].key:
+                                if key[0].key == keys[i].key:
                                     self.player.get_health(enemy.amount)
                                     animation_transition.update_animation(3, i)
                             else:
-                                if key.key == keys[i].key:
+                                if key[0].key == keys[i].key:
                                     animation_transition.update_animation(1, i)
 
                         pygame.mixer.Sound.play(sound_effecting)
-                        key.handled = True
-                for key in keys_damage:
-                    if key.rect.colliderect(rect) and key.handled:
+                        key[0].handled = True
+                    elif key[1].rect.colliderect(rect) and key[1].handled:
                         self.player.get_damage(enemy.amount)
                         map_rect[0].remove(rect)
                         map_rect[1].remove(enemy)
@@ -212,7 +216,7 @@ class SongExecutor(SongComponent):
                         sound_effecting = pygame.mixer.Sound("assets/sound_effects/damage sound effect.wav")
 
                         for i in range(-3, 0):
-                            if key.key == keys_damage[i].key:
+                            if key[1].key == keys_damage[i].key:
                                 animation_transition.update_animation(2, i)
                         pygame.mixer.Sound.play(sound_effecting)
 
