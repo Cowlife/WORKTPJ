@@ -62,6 +62,8 @@ class Entity(pygame.sprite.Sprite):
         self.health_ratio = self.max_health / self.health_bar_length
         self.health_change_speed = 20
         self.amount = entitymodel.damage_amount
+        self.score = 0
+        self.chain = 0
 
     def move_sprite(self, speed):
         self.current_sprite += speed
@@ -120,6 +122,8 @@ class Entity(pygame.sprite.Sprite):
     def update_health(self, screen):
         result = [0, 0]
         self.text_printer(50, "Health", (222, 109, 11), (800, 20), screen)
+        self.text_printer(25, "Score:", (222, 109, 11), (100, 120), screen)
+        self.text_printer(25, "Chain:", (222, 109, 11), (100, 220), screen)
         if self.current_health < self.target_health:
             result = self.health_change_function(1, (0, 255, 0))
 
@@ -135,6 +139,8 @@ class Entity(pygame.sprite.Sprite):
         pygame.draw.rect(screen, (255, 255, 255), (800, 100, self.health_bar_length, 25), 4)
 
         self.text_printer(25, f"{self.current_health}/{self.max_health}", (44, 36, 199), (900, 100), screen)
+        self.text_printer(25, f"{self.score}", (222, 109, 11), (250, 120), screen)
+        self.text_printer(25, f"{self.chain}", (222, 109, 11), (250, 220), screen)
 
     def clone(self):
         return NotImplemented
