@@ -2,6 +2,8 @@ import pygame
 import pygame_widgets
 from pygame.event import Event
 
+from keys import keys
+
 
 class ImageryComponent:
     def __init__(self, counter, text_image, layers, images_sizes, screen, scroll):
@@ -32,6 +34,12 @@ class ImageryComponent:
             if event.type == timer_event:
                 self.counter += 1
                 self.text = font.render(str(self.counter), True, (222, 109, 11))
+            if event.type == pygame.KEYDOWN:
+                for _key in keys:
+                    if event.key == _key.key:
+                        pygame.draw.rect(self.screen, _key.color1, _key.rect)
+                        _key.handled = not _key.handled
+
         return self.text, event
 
     def world_drawer(self, bg_images, bg_width, ground_image, ground_width, ground_height, scroll):
@@ -67,4 +75,3 @@ class ImageryGroundExecution(ImageryComponent):
         pygame_widgets.update(timer_clock[1])
         self.screen.blit(timer_clock[0], timer_clock[0].get_rect())
         self.scroll += 2
-

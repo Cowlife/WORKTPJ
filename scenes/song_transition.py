@@ -118,12 +118,13 @@ class SongComponent:
     def key_and_loop_handler(self, keys, keys_damage):
         k = pygame.key.get_pressed()
         for key in keys:
-            if k[key.key]:
-                pygame.draw.rect(self.screen, key.color1, key.rect)
-                key.handled = False
-            if not k[key.key]:
-                pygame.draw.rect(self.screen, key.color2, key.rect)
-                key.handled = True
+            result = {
+                True: key.color1,
+                False: key.color2
+            }
+            color = result.get(k[key.key], True)
+            pygame.draw.rect(self.screen, color, key.rect)
+
         # now when we press our keys they will change color
         for key in keys_damage:
             if not k[key.key]:
@@ -171,7 +172,8 @@ class SongExecutor(SongComponent):
         list_of_sprites = [self.sprite_group_list[spr].sprites() for spr in range(len(self.sprite_group_list))]
 
         # Transition between Animations
-        animation_transition = AnimationTransitionComponent(self.sprite_group_list, list_of_sprites, map_rect, self.screen, keys, keys_damage, self.player)
+        animation_transition = AnimationTransitionComponent(self.sprite_group_list, list_of_sprites, map_rect,
+                                                            self.screen, keys, keys_damage, self.player)
 
         while True:
             self.clock.tick(60)  # limit movement screen

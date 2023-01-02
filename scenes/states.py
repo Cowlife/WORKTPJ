@@ -5,7 +5,7 @@ class State:
     def enter(self):
         print(f"Entering{self.name}")
 
-    def update(self, object):
+    def update(self):
         pass
 
     def exit(self):
@@ -18,22 +18,32 @@ class Transition:
         self._to = _to
 
 
-class Options(State):
+class Attack(State):
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
 
-    def update(self, object):
-        print("waiting for your command...")
-        return super().update(object)
+    def update(self):
+        print("Attacking")
+        # self.update_animation(lst_spr, i, True)
+        return super().update()
 
 
-class Alive(State):
+class Moving(State):
     def __init__(self) -> None:
         super().__init__(self.__class__.__name__)
 
-    def update(self, object):
+    def update(self):
         print("Moving")
-        return super().update(object)
+        return super().update()
+
+
+class Hurt(State):
+    def __init__(self) -> None:
+        super().__init__(self.__class__.__name__)
+
+    def update(self):
+        print("Moving")
+        return super().update()
 
 
 class FSM:
@@ -43,14 +53,14 @@ class FSM:
         self.current: State = i_f_states[0]
         self.end: State = i_f_states[1]
 
-    def update(self, event, object):
+    def update(self, event):
         if event:
             trans = self._transitions.get(event)
             if trans and trans._from == self.current:
                 self.current.exit()
                 self.current = trans._to
                 self.current.enter()
-        self.current.update(object)
+        self.current.update()
 
         if self.current == self.end:
             self.current.exit()
@@ -59,19 +69,18 @@ class FSM:
 
 
 if __name__ == "__main__":
-    menu = Alive()
-    options = Options()
+    moving = Moving()
+    attack = Attack()
     dead = State("Dead")
 
-    states = [menu, options, dead]
+    states = [moving, attack, dead]
     transitions = {
-        "rest": Transition(menu, options),
-        "engage": Transition(options, menu),
-        "harakiri": Transition(options, dead),
-        "shot": Transition(menu, dead)
+        "engage": Transition(moving, attack),
+        "rest": Transition(attack, moving),
+        "miss": Transition(attack, dead),
+        "damaged": Transition(moving, dead)
     }
     fsm = FSM([states[0], states[2]], states, transitions)
     event = None
-    while fsm.update(event, None):
-        event = input(">")
-
+    fsm.update("rest")
+    fsm.update("engage")
