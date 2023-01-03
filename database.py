@@ -1,11 +1,6 @@
 import psycopg2.extras
 
 
-class Retrieval:
-    def __init__(self):
-        pass
-
-
 class DataBaseModel:
     def __init__(self, hostname, database, username, pwd, port_id, table_name):
         self.hostname = hostname
@@ -56,7 +51,6 @@ class DataBaseModel:
             if self.conn is not None:
                 self.conn.close()
         return self.lister
-
 
 # if __name__ == '__main__':
 #     test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')

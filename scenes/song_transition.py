@@ -14,7 +14,8 @@ from scenes.parallax_storage import ImageryGroundExecution
 
 
 class SongComponent:
-    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label):
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search,
+                 song_selected_label):
 
         self.screen = screen
         self.song_file = song_file
@@ -24,7 +25,6 @@ class SongComponent:
         self.enemies_list = enemies_list
         self.enemy_data = enemy_data
         self.result_search = result_search  # scenario, layers, counter_final
-
 
         self.spawner = Spawner()
         self.clock = Clock()
@@ -140,19 +140,21 @@ class SongComponent:
         fade_in_upper = button_transitions.FadeTransition(self.screen)
         fade_in_upper.black_out()
         st_menu = ScreenMenu()
-        st_menu.executioner(True, dict_state, self.screen,
-                            song_selected=self.song_file,
-                            song_selected_label=self.song_selected_label,
-                            song_selected_layers=self.result_search[1],
-                            song_selected_song_end=self.result_search[2])
+        st_menu.execution(True, dict_state, self.screen,
+                          song_selected=self.song_file,
+                          song_selected_label=self.song_selected_label,
+                          song_selected_layers=self.result_search[1],
+                          song_selected_song_end=self.result_search[2])
 
     def UnityExecutor(self):
         raise NotImplemented
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label):
-        super().__init__(screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label)
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search,
+                 song_selected_label):
+        super().__init__(screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search,
+                         song_selected_label)
 
     def UnityExecutor(self):
 
