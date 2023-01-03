@@ -12,4 +12,4 @@ if __name__ == '__main__':
     flags = DOUBLEBUF
     screen = pygame.display.set_mode((1280, 720), flags, 16)
     mixer.init()
-    sMenu.executioner(True, Globals.mapping_buttons_start, screen)
+    sMenu.execution(True, Globals.mapping_buttons_start, screen)

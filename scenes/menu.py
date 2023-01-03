@@ -97,12 +97,12 @@ class TransitoryMenu:
             button_list.append(button)
         return dropdown_list, button_list
 
-    def executioner(self, background_bool, mapping_globals, screen, **kwargs):
+    def execution(self, background_bool, mapping_globals, screen, **kwargs):
         raise NotImplemented
 
 
 class ScreenMenu(TransitoryMenu):  # Default Menu
-    def executioner(self, background_bool, mapping_globals, screen, **kwargs):
+    def execution(self, background_bool, mapping_globals, screen, **kwargs):
         color = kwargs.get('color', "black")
         list_selector = kwargs.get('list_selector', None)
         list_value = kwargs.get('list_value', None)

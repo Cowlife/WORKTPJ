@@ -14,15 +14,18 @@ from scenes.parallax_storage import ImageryGroundExecution
 
 
 class SongComponent:
-    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search):
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label):
 
         self.screen = screen
         self.song_file = song_file
+        self.song_selected_label = song_selected_label
         self.chars_selected = chars_selected
         self.chars_data = chars_data
         self.enemies_list = enemies_list
         self.enemy_data = enemy_data
         self.result_search = result_search  # scenario, layers, counter_final
+
+
         self.spawner = Spawner()
         self.clock = Clock()
         self.pos_loader = 400  # [400, 500, 600] -> Important for position of Entities
@@ -137,15 +140,19 @@ class SongComponent:
         fade_in_upper = button_transitions.FadeTransition(self.screen)
         fade_in_upper.black_out()
         st_menu = ScreenMenu()
-        st_menu.executioner(True, dict_state, self.screen)
+        st_menu.executioner(True, dict_state, self.screen,
+                            song_selected=self.song_file,
+                            song_selected_label=self.song_selected_label,
+                            song_selected_layers=self.result_search[1],
+                            song_selected_song_end=self.result_search[2])
 
     def UnityExecutor(self):
         raise NotImplemented
 
 
 class SongExecutor(SongComponent):
-    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search):
-        super().__init__(screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search)
+    def __init__(self, screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label):
+        super().__init__(screen, song_file, chars_selected, chars_data, enemies_list, enemy_data, result_search, song_selected_label)
 
     def UnityExecutor(self):
 
@@ -159,8 +166,8 @@ class SongExecutor(SongComponent):
                                   curved=False)
 
         # Scenario Component
-        imagery = ImageryGroundExecution(0, self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)],
-                                         self.screen, 0)
+        imagery = ImageryGroundExecution(self.result_search[0], self.result_search[1], [(1280, 256), (844, 475)],
+                                         self.screen)
 
         # Enemy List
         list_enemies = self.enemy_sprites.sprites()

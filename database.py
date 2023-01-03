@@ -58,10 +58,10 @@ class DataBaseModel:
         return self.lister
 
 
-if __name__ == '__main__':
-    test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
-    test.retrieve(['name', 'file_name'])
-    print(test.lister)
-    test2 = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
-    test2.retrieve(['scenario'], list_results=f"'{test.lister[0][0]}'")
-    print(test2.lister)
+# if __name__ == '__main__':
+#     test = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
+#     test.retrieve(['name', 'file_name'])
+#     print(test.lister)
+#     test2 = DataBaseModel('localhost', 'test', 'postgres', 'KAYN', 5432, '"Music_Database"')
+#     test2.retrieve(['scenario'], list_results=f"'{test.lister[0][0]}'")
+#     print(test2.lister)

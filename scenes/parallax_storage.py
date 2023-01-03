@@ -6,15 +6,14 @@ from keys import keys
 
 
 class ImageryComponent:
-    def __init__(self, counter, text_image, layers, images_sizes, screen, scroll):
+    def __init__(self, text_image, layers, images_sizes, screen):
         self.text_image = text_image
         self.layers = layers
         self.images_sizes = images_sizes
-        self.counter = counter
+        self.counter = 0
         self.screen = screen
-        self.scroll = scroll
         self.font = pygame.font.Font("assets/fonts/font.ttf", 100)
-        self.text = self.font.render(str(counter), True, (222, 109, 11))
+        self.text = self.font.render(str(self.counter), True, (222, 109, 11))
         self.timer_event = pygame.USEREVENT + 1
         pygame.time.set_timer(self.timer_event, 1000)
         self.bg_images = []
@@ -58,8 +57,9 @@ class ImageryComponent:
 
 
 class ImageryGroundExecution(ImageryComponent):
-    def __init__(self, counter, text_image, layers, images_sizes, screen, scroll):
-        super().__init__(counter, text_image, layers, images_sizes, screen, scroll)
+    def __init__(self, text_image, layers, images_sizes, screen):
+        super().__init__(text_image, layers, images_sizes, screen)
+        self.scroll = 0
         self.ground_image = self.image_loader("ground", 0)
         self.ground_w_h = [self.ground_image.get_width(), self.ground_image.get_height()]
         for i in range(1, layers + 1):

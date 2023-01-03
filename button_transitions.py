@@ -52,23 +52,23 @@ class Play(ButtonTransition, FadeTransition):
         ButtonTransition.fade_in(self, screen)
         dropdown = ButtonTransition.input_db_handling(self, '"Music_Database"',
                                                       ['name', 'file_name', 'song_end', 'dificulty', 'layers'])
-        self.menu.executioner(True, Globals.mapping_buttons_play, screen,
-                              list_selector=dropdown[0], list_value=dropdown[1],
-                              list_end_song=dropdown[2], list_dificulty=dropdown[3],
-                              list_layers=dropdown[4],
-                              settings=DropdownSettings.mapping_songs)
+        self.menu.execution(True, Globals.mapping_buttons_play, screen,
+                            list_selector=dropdown[0], list_value=dropdown[1],
+                            list_end_song=dropdown[2], list_dificulty=dropdown[3],
+                            list_layers=dropdown[4],
+                            settings=DropdownSettings.mapping_songs)
 
 
 class Options(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         ButtonTransition.fade_in(self, screen)
-        self.menu.executioner(False, Globals.mapping_buttons_options, screen, color="white")
+        self.menu.execution(False, Globals.mapping_buttons_options, screen, color="white")
 
 
 class MenuOption(ButtonTransition, FadeTransition):
     def execute(self, buttons, menu_mouse_pos, screen, **kwargs):
         ButtonTransition.fade_in(self, screen)
-        self.menu.executioner(True, Globals.mapping_buttons_start, screen)
+        self.menu.execution(True, Globals.mapping_buttons_start, screen)
 
 
 class CharacterSelect(ButtonTransition, FadeTransition):
@@ -80,14 +80,14 @@ class CharacterSelect(ButtonTransition, FadeTransition):
         ButtonTransition.fade_in(self, screen)
         if song_selected is not None:
             dropdown = ButtonTransition.input_db_handling(self, '"PygameMove"', ['name'])
-            self.menu.executioner(True, Globals.mapping_buttons_character_select, screen,
-                                  list_selector=dropdown[0], settings=DropdownSettings.mapping_characters,
-                                  song_selected=song_selected, song_selected_label=song_selected_label,
-                                  song_selected_layers=song_selected_layers,
-                                  song_selected_song_end=song_selected_song_end)
+            self.menu.execution(True, Globals.mapping_buttons_character_select, screen,
+                                list_selector=dropdown[0], settings=DropdownSettings.mapping_characters,
+                                song_selected=song_selected, song_selected_label=song_selected_label,
+                                song_selected_layers=song_selected_layers,
+                                song_selected_song_end=song_selected_song_end)
         else:
             print("You must select a song!")
-            self.menu.executioner(True, Globals.mapping_buttons_start, screen)
+            self.menu.execution(True, Globals.mapping_buttons_start, screen)
 
 
 class Song(ButtonTransition, FadeTransition):
@@ -100,6 +100,7 @@ class Song(ButtonTransition, FadeTransition):
         scenario_search = ButtonTransition.input_db_handling(self, '"Music_Database"', ['scenario'],
                                                              scenario=f"'{song_selected_label}'")[0]
         scenario_search.extend([song_selected_layers, song_selected_song_end])
+        print(scenario_search)
         ButtonTransition.fade_in(self, screen)
         chars_data = [ButtonTransition.input_db_handling(self, '"PygameMove"',
                                                          ['entire_sheet', 'x_y_start_m_a_h_c',
@@ -107,7 +108,7 @@ class Song(ButtonTransition, FadeTransition):
                                                          scenario=f"'{ch}'") for ch in chars]
         if len(chars_data) != 3:
             print("You must select at least 3 characters!")
-            self.menu.executioner(True, Globals.mapping_buttons_start, screen)
+            self.menu.execution(True, Globals.mapping_buttons_start, screen)
         else:
             enemy_data = ButtonTransition.input_db_handling(self, '"Enemy_Database"',
                                                             ['name', 'health', 'flipper', 'entire_sheet', 'width_enemy',
@@ -115,7 +116,7 @@ class Song(ButtonTransition, FadeTransition):
             enemies_list = enemy_data[0]
             enemy_data.remove(enemies_list)
             song = SongExecutor(self.screen, song_selected, chars, chars_data, enemies_list, enemy_data,
-                                scenario_search)
+                                scenario_search, song_selected_label)
             song.UnityExecutor()
 
 
@@ -219,17 +220,17 @@ class Globals:
     }
 
     mapping_buttons_losing_state = {
-        0: Song,
-        1: Play,
-        2: CharacterSelect,
-        3: MenuOption,
+        # 0: Song -> Restart Attempt
+        0: Play,
+        1: CharacterSelect,
+        2: MenuOption,
         "x_pos": 640,
         "y_pos": 210,
         "title": "You took too much damage!",
         "font_size_title": 32,
         "rect_cd": (640, 50),
-        "image_inputs": ["Play", "Start", "Quit", "Options"],  # ["Play", "Options", "Options", "Options"]
-        "text_inputs": ["RESTART", "RETURN TO SONG SELECT", "RETURN TO CHARACTER SELECT", "RETURN TO MENU"],
+        "image_inputs": ["Play", "Start", "Quit"],  # ["Play", "Options", "Options", "Options"]
+        "text_inputs": ["RETURN TO SONG SELECT", "RETURN TO CHARACTER SELECT", "RETURN TO MENU"],
         "color_base": "#2596be",
         "color_hovering": "Yellow",
         "font_size": 25,
