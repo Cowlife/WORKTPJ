@@ -33,7 +33,9 @@ class ImageComponentExecution(ImageComponent){
 we can modify any variables inside into the subclass of our choosing in order to
 create other simpler alternatives.
 
-3. It is "spammable". 
+3. It is "spammable". It allows to be used various times with little cost as it
+is relatively easy to convey what kind of use the functions do provide at one
+specific point of the program.
 
 ## "Command" Parameter
 
@@ -85,8 +87,8 @@ Two natural fits for this type of program as it allows for simpler and more effe
 organization of variables and functions throughout the program. In my view, the difference 
 is the fact that flyweight can use the same variables over and over while the type object just specifies
 a parent class that can be used inside a subclass that can simplify the process of identifying
-a determined type of object as a whole.
-
+a determined type of object as a whole. Class Player - in this case player.py - for references and uses
+of both of these elements.
 
 ## Prototype
 
@@ -150,6 +152,34 @@ upgrade. It is only used in order to set up the initial display flags of pygame.
 A simple collision effect implemented when the enemy target has more health than usual
 as it retreats backwards when both rectangle objects collide.
 
+```python
+if key_attack.rect.colliderect(rect) and not key_attack.handled: 
+    sound_effecting = self.enemy_collision(rect, enemy, True)
+
+    for i in range(-3, 0):
+        if key_attack.key == self.keys[i].key:
+            effects = {
+                'red': [3, 0],
+                'heal': [3, enemy.amount],
+            }
+            animation_update = effects.get(enemy.name, [1, 0])
+            self.player.get_health(animation_update[1])
+            self.update_animation(animation_update[0], i)
+
+            pygame.mixer.Sound.play(sound_effecting)
+            key_attack.handled = True
+
+        elif key_damage.rect.colliderect(rect) and key_damage.handled:
+
+            sound_effecting = self.enemy_collision(rect, enemy, False)
+
+            for i in range(-3, 0):
+                if key_damage.key == self.keys_damage[i].key:
+                    self.update_animation(2, i)
+
+            pygame.mixer.Sound.play(sound_effecting)
+```
+
 ## Design Patterns and Features Not Used
 
 * **Observer Design Pattern**: Not prioritary as it allows for global notifications like
@@ -179,4 +209,19 @@ applied.
 Despite an overall good project (at least for alpha version), I do believe
 that it felt a bit undercooked in both execution of concept and reusability
 in code. There are some parts in the code that feel unfinished and feel like they
-deserved to be reworked into something more worthwhile.
+deserved to be reworked into something more worthwhile. 
+
+## References
+
+* [Sprites Resource](https://www.spriters-resource.com/)
+* [Parallax Background](https://github.com/russs123/pygame_tutorials/tree/main/Parallax)
+* [Infinite Backgrround](https://github.com/russs123/pygame_tutorials/tree/main/Infinite_Background)
+* [Menu System](https://github.com/baraltech/Menu-System-PyGame)
+* [Postgres Database](https://www.freecodecamp.org/news/postgresql-in-python/)
+* [Design Patterns](https://refactoring.guru/design-patterns/python)
+* [Double Buffering in Pygame](https://www.codeproject.com/Articles/5298051/Improving-Performance-in-Pygame-Speed-Up-Your-Game)
+* [Pygame Display](https://www.pygame.org/docs/ref/display.html)
+* [Pygame Sprite Group](https://www.pygame.org/docs/ref/sprite.html)
+* [SpriteSheet References](http://mathartung.xyz/nsi/projet_pygame_sprite.html)
+* [Image Roster](https://static.wikia.nocookie.net/clubpenguin/images/2/2c/SSB5_Custom_Character_Roster.png/revision/latest?cb=20140930195804)
+* [Music Author References](https://www.youtube.com/@Vetrom)
