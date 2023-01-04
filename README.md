@@ -176,4 +176,7 @@ applied.
 
 ## Final Criticisms
 
-
+Despite an overall good project (at least for alpha version), I do believe
+that it felt a bit undercooked in both execution of concept and reusability
+in code. There are some parts in the code that feel unfinished and feel like they
+deserved to be reworked into something more worthwhile.
